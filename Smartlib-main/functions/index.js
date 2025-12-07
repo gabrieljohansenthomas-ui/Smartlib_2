@@ -1,86 +1,211 @@
-const functions = require('firebase-functions');
-const admin = require('firebase-admin');
+const functions = require("firebase-functions");
+const admin = require("firebase-admin");
+const { sendEmail } = require("./lib/mailer");
+const { Parser } = require("json2csv");
+
 admin.initializeApp();
+const db = admin.firestore();
 
-// Import mailer
-const { sendEmail } = require('./lib/mailer');
+/* ============= UTIL ============= */
 
-// Scheduled function: Kirim pengingat tenggat (3 hari sebelum & overdue)
-exports.sendDueReminder = functions.pubsub.schedule('every 24 hours').onRun(async (context) => {
-  const now = new Date();
-  const threeDaysFromNow = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
-  const db = admin.firestore();
+function today() {
+  return admin.firestore.Timestamp.fromDate(new Date());
+}
 
-  // Query loans yang approved dan belum returned
-  const loansRef = db.collection('loans').where('status', '==', 'approved');
-  const snapshot = await loansRef.get();
+/* ============= 1. NOTIFIKASI BUKU BARU ============= */
+exports.onNewBookAdded = functions.firestore
+  .document("books/{bookId}")
+  .onCreate(async (snap, ctx) => {
+    const book = snap.data();
 
-  for (const doc of snapshot.docs) {
-    const loan = doc.data();
-    const dueDate = loan.dueDate.toDate();
-    const userDoc = await db.collection('users').doc(loan.userId).get();
-    const email = userDoc.data().email;
+    const users = await db.collection("users")
+      .where("active", "==", true)
+      .get();
 
-    if (dueDate <= now && loan.status !== 'overdue') {
-      // Overdue: Update status dan kirim email
-      await doc.ref.update({ status: 'overdue' });
-      await sendEmail(email, 'Pengingat: Buku Terlambat Dikembalikan', `Buku Anda lewat tenggat. Kembalikan segera.`);
-    } else if (dueDate <= threeDaysFromNow && dueDate > now) {
-      // 3 hari sebelum: Kirim pengingat
-      await sendEmail(email, 'Pengingat: Tenggat Peminjaman', `Buku Anda akan jatuh tempo dalam 3 hari.`);
-    }
-  }
-  return null;
-});
+    users.forEach(u => {
+      sendEmail(
+        u.data().email,
+        "📚 Buku Baru Tersedia!",
+        `
+        <h2>Buku Baru Ditambahkan</h2>
+        <p>Judul: <b>${book.title}</b></p>
+        <p>Penulis: ${book.author}</p>
+        <a href="${process.env.FRONTEND_URL}/book_detail.html?id=${snap.id}">
+          Lihat Detail →
+        </a>
+        `
+      );
+    });
 
-// Trigger onCreate books: Kirim notifikasi ke anggota yang subscribe (opsional: tambah field subscribe di users)
-exports.sendNewBookNotification = functions.firestore.document('books/{bookId}').onCreate(async (snap, context) => {
-  const book = snap.data();
-  const db = admin.firestore();
-  const usersRef = db.collection('users').where('subscribe', '==', true); // Asumsikan field subscribe
-  const snapshot = await usersRef.get();
-
-  for (const doc of snapshot.docs) {
-    const email = doc.data().email;
-    await sendEmail(email, 'Buku Baru Tersedia', `Buku baru: ${book.title} oleh ${book.author}.`);
-  }
-  return null;
-});
-
-// Scheduled backup: Snapshot Firestore ke backups collection (atau Cloud Storage)
-exports.backupFirestore = functions.pubsub.schedule('every 7 days').onRun(async (context) => {
-  const db = admin.firestore();
-  const backupRef = db.collection('backups').doc();
-  const collections = ['users', 'books', 'loans', 'reviews'];
-  const backupData = {};
-
-  for (const col of collections) {
-    const snapshot = await db.collection(col).get();
-    backupData[col] = snapshot.docs.map(doc => ({ id: doc.id, data: doc.data() }));
-  }
-
-  await backupRef.set({
-    timestamp: admin.firestore.FieldValue.serverTimestamp(),
-    data: backupData
+    console.log("Notifikasi email buku baru dikirim.");
   });
 
-  console.log('Backup completed to backups collection.');
-  return null;
-});
 
-// HTTPS callable: Export CSV riwayat peminjaman (admin only)
-exports.exportLoansCSV = functions.https.onCall(async (data, context) => {
-  if (!context.auth || context.auth.token.role !== 'admin') {
-    throw new functions.https.HttpsError('permission-denied', 'Admin only.');
+/* ============= 2. PERMINTAAN PEMINJAMAN DI-APPROVE ADMIN ============= */
+exports.approveLoan = functions.https.onCall(async (data, context) => {
+  if (!context.auth) throw new functions.https.HttpsError("unauthenticated");
+
+  const adminUser = await db.collection("users").doc(context.auth.uid).get();
+  if (!adminUser.exists || adminUser.data().role !== "admin") {
+    throw new functions.https.HttpsError("permission-denied");
   }
 
-  const db = admin.firestore();
-  const snapshot = await db.collection('loans').get();
-  let csv = 'BookID,UserID,Status,DueDate\n';
-  snapshot.forEach(doc => {
-    const loan = doc.data();
-    csv += `${loan.bookId},${loan.userId},${loan.status},${loan.dueDate?.toDate().toISOString() || 'N/A'}\n`;
+  const docId = data.loanId;
+
+  const loanRef = db.collection("loans").doc(docId);
+  const loan = (await loanRef.get()).data();
+
+  const dueDate = new Date();
+  dueDate.setDate(dueDate.getDate() + 7);
+
+  await loanRef.update({
+    approvedAt: today(),
+    dueDate,
+    status: "approved"
   });
 
-  return csv; // Return CSV string, handle download di frontend
+  // kurangi stok buku
+  const bookRef = db.collection("books").doc(loan.bookId);
+  const bookSnap = await bookRef.get();
+  await bookRef.update({
+    availableStock: bookSnap.data().availableStock - 1
+  });
+
+  // Kirim email ke user
+  const user = await db.collection("users").doc(loan.userId).get();
+
+  await sendEmail(
+    user.data().email,
+    "Peminjaman Buku Disetujui",
+    `
+      <h2>Peminjaman Anda Disetujui!</h2>
+      <p>Buku Anda sudah bisa diambil di perpustakaan.</p>
+      <p>Batas pengembalian: ${dueDate.toLocaleDateString("id-ID")}</p>
+    `
+  );
+
+  return { success: true };
 });
+
+
+/* ============= 3. PENGEMBALIAN BUKU ============= */
+exports.returnBook = functions.https.onCall(async (data, context) => {
+  if (!context.auth) throw new functions.https.HttpsError("unauthenticated");
+
+  const adminUser = await db.collection("users").doc(context.auth.uid).get();
+  if (!adminUser.exists || adminUser.data().role !== "admin") {
+    throw new functions.https.HttpsError("permission-denied");
+  }
+
+  const loanRef = db.collection("loans").doc(data.loanId);
+  const loan = (await loanRef.get()).data();
+
+  await loanRef.update({
+    returnedAt: today(),
+    status: "returned"
+  });
+
+  const bookRef = db.collection("books").doc(loan.bookId);
+  const bookSnap = await bookRef.get();
+
+  await bookRef.update({
+    availableStock: bookSnap.data().availableStock + 1
+  });
+
+  return { success: true };
+});
+
+
+/* ============= 4. PENGINGAT JATUH TEMPO ============= */
+exports.dailyDueReminder = functions.pubsub
+  .schedule("every 24 hours")
+  .onRun(async () => {
+
+    const now = new Date();
+    const twoDays = new Date();
+    twoDays.setDate(now.getDate() + 2);
+
+    const snap = await db.collection("loans")
+      .where("status", "==", "approved")
+      .get();
+
+    snap.forEach(async docu => {
+      const loan = docu.data();
+      if (!loan.dueDate) return;
+
+      const due = loan.dueDate.toDate();
+      if (due.toDateString() === twoDays.toDateString()) {
+        const user = await db.collection("users").doc(loan.userId).get();
+
+        sendEmail(
+          user.data().email,
+          "⏰ Pengingat Pengembalian Buku",
+          `
+            <h2>Buku akan jatuh tempo dalam 2 hari!</h2>
+            <p>Segera lakukan pengembalian tepat waktu.</p>
+          `
+        );
+      }
+    });
+
+    console.log("Pengingat due dikirim.");
+  });
+
+
+/* ============= 5. BACKUP FIRESTORE OTOMATIS ============= */
+exports.backupFirestore = functions.pubsub
+  .schedule("every 24 hours")
+  .onRun(async () => {
+
+    const bucket = admin.storage().bucket();
+    const exportFolder = `backups/firestore-${Date.now()}`;
+
+    await bucket.upload("/workspace/firestore-export", {
+      destination: exportFolder
+    });
+
+    console.log("Backup Firestore selesai:", exportFolder);
+  });
+
+
+/* ============= 6. EXPORT CSV UNTUK ADMIN ============= */
+exports.exportLoanCSV = functions.https.onCall(async (data, context) => {
+  if (!context.auth) throw new functions.https.HttpsError("unauthenticated");
+
+  const adminUser = await db.collection("users").doc(context.auth.uid).get();
+  if (!adminUser.exists || adminUser.data().role !== "admin") {
+    throw new functions.https.HttpsError("permission-denied");
+  }
+
+  const loans = await db.collection("loans").get();
+
+  const arr = loans.docs.map(d => ({
+    id: d.id,
+    userId: d.data().userId,
+    bookId: d.data().bookId,
+    status: d.data().status,
+    requestAt: d.data().requestAt?.toDate().toISOString(),
+    approvedAt: d.data().approvedAt?.toDate().toISOString(),
+    returnedAt: d.data().returnedAt?.toDate().toISOString()
+  }));
+
+  const parser = new Parser();
+  const csv = parser.parse(arr);
+
+  return csv;
+});
+
+
+/* ============= 7. TRIGGER OTOMATIS POPULARITY SCORE ============= */
+exports.updatePopularity = functions.firestore
+  .document("reviews/{id}")
+  .onCreate(async snap => {
+    const rev = snap.data();
+
+    const bookRef = db.collection("books").doc(rev.bookId);
+    const bookSnap = await bookRef.get();
+
+    await bookRef.update({
+      popularityScore: bookSnap.data().popularityScore + rev.rating
+    });
+  });
