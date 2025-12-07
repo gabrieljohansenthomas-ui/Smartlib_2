@@ -1,34 +1,39 @@
-// {
-  "functions": {
-    "source": "functions",
-    "runtime": "nodejs16"
-  },
-  "firestore": {
-    "rules": "firestore.rules"
-  },
+{
   "hosting": {
-    "public": ".",
+    "public": "perpus-smkn3mdo-frontend",
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
     ],
+    "cleanUrls": true,
     "rewrites": [
       {
-        "source": "**",
-        "destination": "/index.html"
+        "source": "/admin/**",
+        "destination": "/admin/books.html"
       }
     ]
   },
+
+  "functions": {
+    "source": "functions",
+    "runtime": "nodejs18"
+  },
+
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+
   "emulators": {
-    "auth": {
-      "port": 9099
+    "functions": {
+      "port": 5001
     },
     "firestore": {
       "port": 8080
     },
-    "functions": {
-      "port": 5001
+    "auth": {
+      "port": 9099
     },
     "hosting": {
       "port": 5000
