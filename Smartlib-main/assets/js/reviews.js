@@ -1,68 +1,80 @@
-import { db, auth } from './firebase-config.js';
-import { collection, query, where, getDocs, addDoc, orderBy, limit } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
-import { escapeHTML } from './utils.js';
+import { db, auth } from "./firebase-config.js";
+import { getQueryParam, sanitizeHTML, formatDate } from "./utils.js";
 
-// Load detail buku dan ulasan
-export async function loadBookDetail(bookId) {
-  const bookDoc = await getDoc(doc(db, 'books', bookId));
-  const book = bookDoc.data();
-  const reviewsQ = query(collection(db, 'reviews'), where('bookId', '==', bookId), orderBy('createdAt', 'desc'), limit(10));
-  const reviewsSnapshot = await getDocs(reviewsQ);
-  let avgRating = 0;
-  let totalReviews = 0;
-  reviewsSnapshot.forEach(doc => {
-    const review = doc.data();
-    avgRating += review.rating;
-    totalReviews++;
+import {
+  collection, addDoc, getDocs, query, where
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const bookId = getQueryParam("id");
+const reviewSection = document.getElementById("reviewSection");
+
+if (reviewSection) loadReviews();
+
+async function loadReviews() {
+  const q = query(collection(db, "reviews"), where("bookId", "==", bookId));
+  const snap = await getDocs(q);
+
+  let total = 0, count = 0;
+  let html = "";
+
+  snap.forEach(d => {
+    const r = d.data();
+    count++;
+    total += r.rating;
+
+    html += `
+      <div class="bg-white shadow p-4 rounded mb-3">
+        <p class="font-bold">${"⭐".repeat(r.rating)}</p>
+        <p>${sanitizeHTML(r.text)}</p>
+        <p class="text-xs text-gray-500 mt-2">${formatDate(r.createdAt)}</p>
+      </div>`;
   });
-  avgRating = totalReviews > 0 ? (avgRating / totalReviews).toFixed(1) : 0;
 
-  document.getElementById('bookDetail').innerHTML = `
-    <img src="${escapeHTML(book.coverUrl)}" alt="${escapeHTML(book.title)}" class="w-full h-64 object-cover mb-4">
-    <h2 class="text-3xl font-bold">${escapeHTML(book.title)}</h2>
-    <p>Penulis: ${escapeHTML(book.author)}</p>
-    <p>Kategori: ${escapeHTML(book.category)}</p>
-    <p>Rating Rata-rata: ${avgRating}/5 (${totalReviews} ulasan)</p>
-    <p>Stok: ${book.availableStock}/${book.totalStock}</p>
-    <p>${escapeHTML(book.description)}</p>
-    <button onclick="requestBorrow('${bookId}')" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700">Pinjam</button>
+  const avg = count ? (total / count).toFixed(1) : "0";
+
+  reviewSection.innerHTML = `
+    <p class="text-lg mb-4">Rating rata-rata: <b>${avg}</b> / 5</p>
+
+    <textarea id="reviewText" class="w-full border p-2 rounded"
+      placeholder="Tulis ulasan..."></textarea>
+
+    <select id="reviewRating" class="border p-2 rounded mt-2">
+      <option value="5">5 - Sangat Bagus</option>
+      <option value="4">4 - Bagus</option>
+      <option value="3">3 - Cukup</option>
+      <option value="2">2 - Kurang</option>
+      <option value="1">1 - Buruk</option>
+    </select>
+
+    <button id="sendReview"
+      class="mt-3 px-4 py-2 bg-sky-600 text-white rounded">
+      Kirim Ulasan
+    </button>
+
+    <h3 class="text-xl font-bold mt-6">Ulasan Pengguna</h3>
+    ${html}
   `;
 
-  const reviewsList = document.getElementById('reviewsList');
-  reviewsList.innerHTML = '';
-  reviewsSnapshot.forEach(doc => {
-    const review = doc.data();
-    reviewsList.innerHTML += `
-      <div class="bg-gray-100 p-4 rounded mb-4">
-        <p>Rating: ${review.rating}/5</p>
-        <p>${DOMPurify.sanitize(review.text)}</p> <!-- Sanitasi XSS -->
-      </div>
-    `;
-  });
+  document.getElementById("sendReview").onclick = sendReview;
 }
 
-// Submit ulasan
-export async function submitReview(bookId, rating, text) {
+async function sendReview() {
+  const text = sanitizeHTML(document.getElementById("reviewText").value.trim());
+  const rating = Number(document.getElementById("reviewRating").value);
+
+  if (!text) return alert("Tulis ulasan.");
+
   const user = auth.currentUser;
-  if (!user) return alert('Login dulu.');
-  await addDoc(collection(db, 'reviews'), {
+  if (!user) return alert("Login dulu.");
+
+  await addDoc(collection(db, "reviews"), {
     bookId,
     userId: user.uid,
-    rating: parseInt(rating),
-    text: DOMPurify.sanitize(text), // Sanitasi
+    rating,
+    text,
     createdAt: new Date()
   });
-  loadBookDetail(bookId);
+
+  alert("Ulasan dikirim.");
+  loadReviews();
 }
-
-// Event listeners
-const urlParams = new URLSearchParams(window.location.search);
-const bookId = urlParams.get('id');
-if (bookId) loadBookDetail(bookId);
-
-document.getElementById('reviewForm')?.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const rating = document.getElementById('rating').value;
-  const text = document.getElementById('reviewText').value;
-  submitReview(bookId, rating, text);
-});

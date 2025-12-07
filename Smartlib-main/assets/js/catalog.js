@@ -1,63 +1,64 @@
-import { db } from './firebase-config.js';
-import { collection, query, where, orderBy, limit, startAfter, getDocs } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
-import { escapeHTML } from './utils.js';
+import { db } from "./firebase-config.js";
+import {
+  collection, getDocs, query, where, limit
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-let lastDoc = null;
-let currentPage = 1;
+import { sanitizeHTML } from "./utils.js";
 
-// Load katalog dengan filter dan pagination
-export async function loadCatalog(search = '', category = '', status = '', page = 1) {
-  const booksRef = collection(db, 'books');
-  let q = query(booksRef, orderBy('title'), limit(10));
-  if (search) q = query(q, where('title', '>=', search), where('title', '<=', search + '\uf8ff'));
-  if (category) q = query(q, where('category', '==', category));
-  if (status === 'available') q = query(q, where('availableStock', '>', 0));
-  if (status === 'borrowed') q = query(q, where('availableStock', '==', 0));
-  if (page > 1 && lastDoc) q = query(q, startAfter(lastDoc));
+const bookList = document.getElementById("bookList");
 
-  const snapshot = await getDocs(q);
-  lastDoc = snapshot.docs[snapshot.docs.length - 1];
-  const booksList = document.getElementById('bookList');
-  booksList.innerHTML = '';
-  snapshot.forEach(doc => {
-    const book = doc.data();
-    booksList.innerHTML += `
-      <div class="bg-white p-4 rounded-lg shadow">
-        <img src="${escapeHTML(book.coverUrl)}" alt="${escapeHTML(book.title)}" class="w-full h-48 object-cover mb-4">
-        <h3 class="text-xl font-bold">${escapeHTML(book.title)}</h3>
-        <p>Penulis: ${escapeHTML(book.author)}</p>
-        <p>Stok: ${book.availableStock}/${book.totalStock}</p>
-        <a href="book_detail.html?id=${doc.id}" class="bg-blue-600 text-white px-4 py-2 rounded mt-2 inline-block">Detail</a>
-      </div>
-    `;
+/* Load buku dengan filter */
+async function loadBooks() {
+  bookList.innerHTML = "Memuat...";
+
+  const q = query(collection(db, "books"), limit(40));
+  const snap = await getDocs(q);
+
+  let books = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  const search = sanitizeHTML(document.getElementById("searchInput").value.trim().toLowerCase());
+  if (search) {
+    books = books.filter(b =>
+      b.title.toLowerCase().includes(search) ||
+      b.author.toLowerCase().includes(search)
+    );
+  }
+
+  const cat = document.getElementById("categoryFilter").value;
+  if (cat) books = books.filter(b => b.category === cat);
+
+  const status = document.getElementById("statusFilter").value;
+  if (status === "available")
+    books = books.filter(b => b.availableStock > 0);
+  if (status === "borrowed")
+    books = books.filter(b => b.availableStock <= 0);
+
+  renderBooks(books);
+}
+
+/* Render */
+function renderBooks(list) {
+  bookList.innerHTML = "";
+  list.forEach(b => {
+    bookList.innerHTML += `
+      <div class="bg-white rounded shadow hover:shadow-lg card-hover p-4">
+        <img src="${b.coverUrl}" class="w-full h-40 object-cover rounded">
+        <h3 class="font-bold mt-2">${escapeHTML(b.title)}</h3>
+        <p class="text-sm text-gray-600">${escapeHTML(b.author)}</p>
+
+        <a href="book_detail.html?id=${b.id}"
+           class="block mt-3 px-3 py-2 bg-sky-600 text-white text-center rounded">
+          Detail
+        </a>
+      </div>`;
   });
-  updatePagination(snapshot.size === 10);
 }
 
-// Load kategori untuk filter
-export async function loadCategories() {
-  const snapshot = await getDocs(collection(db, 'books'));
-  const categories = new Set();
-  snapshot.forEach(doc => categories.add(doc.data().category));
-  const select = document.getElementById('categoryFilter');
-  categories.forEach(cat => select.innerHTML += `<option value="${cat}">${cat}</option>`);
-}
-
-// Event listeners
-document.getElementById('searchBtn')?.addEventListener('click', () => {
-  const search = document.getElementById('searchInput').value;
-  const category = document.getElementById('categoryFilter').value;
-  const status = document.getElementById('statusFilter').value;
-  loadCatalog(search, category, status, 1);
+/* Events */
+["searchInput", "categoryFilter", "statusFilter"].forEach(id => {
+  if (document.getElementById(id)) {
+    document.getElementById(id).addEventListener("input", loadBooks);
+  }
 });
 
-document.getElementById('prevBtn')?.addEventListener('click', () => {
-  if (currentPage > 1) loadCatalog('', '', '', --currentPage);
-});
-
-document.getElementById('nextBtn')?.addEventListener('click', () => {
-  loadCatalog('', '', '', ++currentPage);
-});
-
-loadCategories();
-loadCatalog();
+loadBooks();

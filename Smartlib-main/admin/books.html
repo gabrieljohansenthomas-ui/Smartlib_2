@@ -1,66 +1,53 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kelola Buku - Admin Perpustakaan SMK Negeri 3 Manado</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="../assets/css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manajemen Buku – Admin</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.3/dist/purify.min.js"></script>
+
+  <script type="module" src="../assets/js/firebase-config.js"></script>
+  <script type="module" src="../assets/js/utils.js"></script>
+  <script type="module" src="../assets/js/auth.js"></script>
+  <script type="module" src="../assets/js/book_manage.js"></script>
 </head>
+
 <body class="bg-gray-50">
-    <header class="bg-blue-600 text-white shadow-lg">
-        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-            <h1 class="text-2xl font-bold">Kelola Buku (Admin)</h1>
-            <nav><a href="../dashboard.html" class="hover:text-blue-200">Kembali ke Dashboard</a></nav>
-        </div>
-    </header>
-    <main class="container mx-auto px-4 py-8">
-        <h2 class="text-3xl font-semibold mb-6">Daftar Buku</h2>
-        <button id="addBookBtn" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 mb-6">Tambah Buku Baru</button>
-        <div id="booksList" class="space-y-4">
-            <!-- Buku dimuat dinamis -->
-        </div>
-        <!-- Modal untuk tambah/edit buku -->
-        <div id="bookModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
-            <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg">
-                <h3 id="modalTitle" class="text-2xl font-bold mb-6">Tambah Buku</h3>
-                <form id="bookForm">
-                    <div class="mb-4">
-                        <label class="block text-gray-700">Judul</label>
-                        <input type="text" id="title" required maxlength="200" class="w-full p-3 border border-gray-300 rounded-lg">
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700">Penulis</label>
-                        <input type="text" id="author" required maxlength="100" class="w-full p-3 border border-gray-300 rounded-lg">
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700">ISBN</label>
-                        <input type="text" id="isbn" required pattern="^\d{10}(\d{3})?$" class="w-full p-3 border border-gray-300 rounded-lg">
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700">Kategori</label>
-                        <input type="text" id="category" required class="w-full p-3 border border-gray-300 rounded-lg">
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700">Deskripsi</label>
-                        <textarea id="description" required class="w-full p-3 border border-gray-300 rounded-lg"></textarea>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700">Cover URL</label>
-                        <input type="url" id="coverUrl" required class="w-full p-3 border border-gray-300 rounded-lg">
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700">Stok Total</label>
-                        <input type="number" id="totalStock" required min="1" class="w-full p-3 border border-gray-300 rounded-lg">
-                    </div>
-                    <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700">Simpan</button>
-                    <button type="button" id="closeModal" class="ml-4 bg-gray-300 text-gray-700 px-6 py-3 rounded-lg">Batal</button>
-                </form>
-            </div>
-        </div>
-    </main>
-    <script type="module" src="../assets/js/firebase-config.js"></script>
-    <script type="module" src="../assets/js/book_manage.js"></script>
-    <script type="module" src="../assets/js/utils.js"></script>
+
+  <div class="max-w-6xl mx-auto py-10 px-4">
+
+    <h1 class="text-3xl font-bold text-sky-700 mb-6">Manajemen Buku</h1>
+
+    <!-- Add Book -->
+    <div class="bg-white p-6 rounded shadow mb-8">
+      <h2 class="text-xl font-bold mb-4">Tambah Buku Baru</h2>
+
+      <div class="grid md:grid-cols-2 gap-4">
+
+        <input id="bookTitle" class="border px-3 py-2 rounded" placeholder="Judul buku">
+        <input id="bookAuthor" class="border px-3 py-2 rounded" placeholder="Penulis">
+        <input id="bookISBN" class="border px-3 py-2 rounded" placeholder="ISBN">
+        <input id="bookCategory" class="border px-3 py-2 rounded" placeholder="Kategori">
+        <input id="bookStock" type="number" class="border px-3 py-2 rounded" placeholder="Stok Total">
+        <input id="bookCover" class="border px-3 py-2 rounded" placeholder="URL Cover">
+
+        <textarea id="bookDescription" class="border px-3 py-2 rounded md:col-span-2"
+                  placeholder="Deskripsi buku"></textarea>
+      </div>
+
+      <button id="addBookBtn"
+              class="mt-4 px-4 py-2 bg-sky-600 text-white rounded hover:bg-sky-700">
+        Tambah Buku
+      </button>
+    </div>
+
+    <!-- List -->
+    <h2 class="text-xl font-bold mb-4">Daftar Buku</h2>
+    <div id="adminBookList" class="grid md:grid-cols-3 gap-6"></div>
+
+  </div>
+
 </body>
 </html>

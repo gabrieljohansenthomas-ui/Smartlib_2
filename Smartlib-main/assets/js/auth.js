@@ -1,79 +1,115 @@
-import { auth, db } from './firebase-config.js';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
-import { doc, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+/**
+ * Auth logic:
+ * - Register member (default role)
+ * - Login
+ * - Redirect based on role
+ * - Prevent inactive users
+ */
 
-// Register: Default role "member", buat dokumen di users collection
-export async function registerUser(displayName, email, password) {
-  try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const uid = userCredential.user.uid;
-    await setDoc(doc(db, 'users', uid), {
-      displayName,
-      email,
-      role: 'member', // Default
-      active: true,
-      joinedAt: new Date()
+import { auth, db } from "./firebase-config.js";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+import {
+  doc, getDoc, setDoc
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+
+/* REGISTER --------------------------------------------- */
+const regBtn = document.getElementById("registerBtn");
+if (regBtn) {
+  regBtn.addEventListener("click", async () => {
+    const name = sanitizeHTML(regName.value.trim());
+    const email = regEmail.value.trim();
+    const pw = regPassword.value.trim();
+
+    if (!name || !email || pw.length < 6) {
+      alert("Lengkapi semua kolom dengan benar.");
+      return;
+    }
+
+    try {
+      const userCred = await createUserWithEmailAndPassword(auth, email, pw);
+      const uid = userCred.user.uid;
+
+      await setDoc(doc(db, "users", uid), {
+        displayName: name,
+        email,
+        role: "member",
+        active: true,
+        joinedAt: new Date()
+      });
+
+      alert("Registrasi sukses!");
+      window.location.href = "dashboard.html";
+
+    } catch (err) {
+      alert("Error: " + err.message);
+    }
+  });
+}
+
+
+/* LOGIN ------------------------------------------------- */
+const loginBtn = document.getElementById("loginBtn");
+if (loginBtn) {
+  loginBtn.addEventListener("click", async () => {
+    const email = document.getElementById("email").value.trim();
+    const pw = document.getElementById("password").value.trim();
+
+    try {
+      await signInWithEmailAndPassword(auth, email, pw);
+      window.location.href = "dashboard.html";
+    } catch (err) {
+      alert("Login gagal: " + err.message);
+    }
+  });
+}
+
+
+/* ROLE CHECK & REDIRECT -------------------------------- */
+onAuthStateChanged(auth, async user => {
+  const roleDiv = document.getElementById("roleRedirect");
+  if (!user || !roleDiv) return;
+
+  const snap = await getDoc(doc(db, "users", user.uid));
+  if (!snap.exists()) return;
+
+  const data = snap.data();
+
+  if (!data.active) {
+    alert("Akun Anda dinonaktifkan.");
+    signOut(auth);
+    return;
+  }
+
+  if (data.role === "admin") {
+    roleDiv.innerHTML = `
+      <a href="admin/books.html"
+         class="px-4 py-2 bg-sky-600 text-white rounded">Masuk Panel Admin</a>`;
+  } else {
+    roleDiv.innerHTML = `
+      <a href="katalog.html"
+         class="px-4 py-2 bg-green-600 text-white rounded">Masuk Katalog</a>`;
+  }
+});
+
+
+/* ADMIN GUARD ------------------------------------------ */
+export async function requireAdmin() {
+  return new Promise(resolve => {
+    onAuthStateChanged(auth, async user => {
+      if (!user) return (window.location.href = "../login.html");
+
+      const snap = await getDoc(doc(db, "users", user.uid));
+      if (!snap.exists() || snap.data().role !== "admin") {
+        alert("Akses khusus admin.");
+        window.location.href = "../katalog.html";
+      } else resolve(true);
     });
-    window.location.href = 'dashboard.html';
-  } catch (error) {
-    document.getElementById('errorMsg').textContent = error.message;
-  }
+  });
 }
-
-// Login: Cek active status
-export async function loginUser(email, password) {
-  try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    const uid = userCredential.user.uid;
-    const userDoc = await getDoc(doc(db, 'users', uid));
-    if (!userDoc.exists() || !userDoc.data().active) {
-      await signOut(auth);
-      throw new Error('Akun tidak aktif.');
-    }
-    window.location.href = 'dashboard.html';
-  } catch (error) {
-    document.getElementById('errorMsg').textContent = error.message;
-  }
-}
-
-// Logout
-export function logout() {
-  signOut(auth).then(() => window.location.href = 'login.html');
-}
-
-// Role-based guard
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    const userDoc = await getDoc(doc(db, 'users', user.uid));
-    const role = userDoc.data()?.role;
-    if (window.location.pathname.includes('/admin/') && role !== 'admin') {
-      window.location.href = 'dashboard.html';
-    }
-    // Tampilkan dashboard sesuai role
-    if (role === 'admin') {
-      document.getElementById('adminDashboard').classList.remove('hidden');
-    } else {
-      document.getElementById('memberDashboard').classList.remove('hidden');
-    }
-  } else if (!window.location.pathname.includes('login.html') && !window.location.pathname.includes('register.html')) {
-    window.location.href = 'login.html';
-  }
-});
-
-// Event listeners untuk form
-document.getElementById('registerForm')?.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const displayName = document.getElementById('displayName').value;
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-  registerUser(displayName, email, password);
-});
-
-document.getElementById('loginForm')?.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-  loginUser(email, password);
-});
-
-document.getElementById('logoutBtn')?.addEventListener('click', logout);

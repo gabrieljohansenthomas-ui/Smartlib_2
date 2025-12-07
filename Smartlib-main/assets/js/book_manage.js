@@ -1,116 +1,107 @@
-import { db } from './firebase-config.js';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
-import { escapeHTML } from './utils.js';
+import { db } from "./firebase-config.js";
+import { requireAdmin } from "./auth.js";
+import {
+  collection, addDoc, getDocs, deleteDoc, doc, updateDoc
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// Load daftar buku untuk admin
-export async function loadBooks() {
-  const snapshot = await getDocs(collection(db, 'books'));
-  const booksList = document.getElementById('booksList');
-  booksList.innerHTML = '';
-  snapshot.forEach(doc => {
-    const book = doc.data();
-    booksList.innerHTML += `
-      <div class="bg-white p-4 rounded-lg shadow flex justify-between items-center">
-        <div>
-          <h3 class="text-xl font-bold">${escapeHTML(book.title)}</h3>
-          <p>Stok: ${book.availableStock}/${book.totalStock}</p>
-        </div>
-        <div>
-          <button onclick="editBook('${doc.id}')" class="bg-yellow-500 text-white px-4 py-2 rounded mr-2">Edit</button>
-          <button onclick="deleteBook('${doc.id}')" class="bg-red-500 text-white px-4 py-2 rounded">Hapus</button>
-        </div>
-      </div>
-    `;
+import { sanitizeHTML } from "./utils.js";
+
+await requireAdmin();
+
+/* ADD BOOK ----------------------------------------- */
+const addBtn = document.getElementById("addBookBtn");
+if (addBtn) {
+  addBtn.addEventListener("click", async () => {
+    const title = sanitizeHTML(bookTitle.value.trim());
+    const author = sanitizeHTML(bookAuthor.value.trim());
+    const isbn = sanitizeHTML(bookISBN.value.trim());
+    const cat = sanitizeHTML(bookCategory.value.trim());
+    const stock = Number(bookStock.value);
+    const cover = sanitizeHTML(bookCover.value.trim());
+    const desc = sanitizeHTML(bookDescription.value.trim());
+
+    if (!title || !author) {
+      alert("Judul dan penulis wajib.");
+      return;
+    }
+
+    await addDoc(collection(db, "books"), {
+      title, author, isbn, category: cat, description: desc,
+      coverUrl: cover, totalStock: stock, availableStock: stock,
+      createdAt: new Date(), updatedAt: new Date(), popularityScore: 0
+    });
+
+    alert("Buku ditambahkan.");
+    location.reload();
   });
 }
 
-// Tambah/Edit buku dengan validasi
-export async function saveBook(bookId = null) {
-  const title = document.getElementById('title').value.trim();
-  const author = document.getElementById('author').value.trim();
-  const isbn = document.getElementById('isbn').value.trim();
-  const category = document.getElementById('category').value.trim();
-  const description = document.getElementById('description').value.trim();
-  const coverUrl = document.getElementById('coverUrl').value.trim();
-  const totalStock = parseInt(document.getElementById('totalStock').value);
 
-  if (!title || !author || !isbn || !category || !description || !coverUrl || totalStock < 1) {
-    alert('Semua field wajib diisi dengan benar.');
-    return;
-  }
+/* LIST BOOKS ----------------------------------------- */
+const bookContainer = document.getElementById("adminBookList");
+if (bookContainer) loadBooks();
 
-  const bookData = {
-    title,
-    author,
-    isbn,
-    category,
-    description,
-    coverUrl,
-    totalStock,
-    availableStock: totalStock, // Default sama dengan total
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    popularityScore: 0
-  };
+async function loadBooks() {
+  const snap = await getDocs(collection(db, "books"));
+  bookContainer.innerHTML = "";
 
-  if (bookId) {
-    await updateDoc(doc(db, 'books', bookId), bookData);
-  } else {
-    await addDoc(collection(db, 'books'), bookData);
-  }
-  document.getElementById('bookModal').classList.add('hidden');
+  snap.forEach(docu => {
+    const b = docu.data();
+    bookContainer.innerHTML += `
+      <div class="bg-white p-4 rounded shadow">
+        <img src="${b.coverUrl}" class="h-32 object-cover rounded w-full" />
+        <h3 class="font-bold mt-2">${escapeHTML(b.title)}</h3>
+        <p>${escapeHTML(b.author)}</p>
+        <button onclick="deleteBook('${docu.id}')"
+          class="mt-3 px-3 py-1 bg-red-600 text-white rounded">Hapus</button>
+      </div>`;
+  });
+}
+
+/* DELETE */
+window.deleteBook = async id => {
+  if (!confirm("Hapus buku ini?")) return;
+  await deleteDoc(doc(db, "books", id));
   loadBooks();
-}
+};
 
-// Hapus buku
-export async function deleteBook(bookId) {
-  if (confirm('Yakin hapus buku ini?')) {
-    await deleteDoc(doc(db, 'books', bookId));
-    loadBooks();
-  }
-}
 
-// Load anggota untuk admin (reuse logic)
-export async function loadMembers() {
-  const snapshot = await getDocs(collection(db, 'users'));
-  const membersList = document.getElementById('membersList');
-  membersList.innerHTML = '';
-  snapshot.forEach(doc => {
-    const user = doc.data();
-    membersList.innerHTML += `
-      <div class="bg-white p-4 rounded-lg shadow flex justify-between items-center">
-        <div>
-          <h3 class="text-xl font-bold">${escapeHTML(user.displayName)}</h3>
-          <p>Email: ${escapeHTML(user.email)} | Status: ${user.active ? 'Aktif' : 'Nonaktif'}</p>
-        </div>
-        <button onclick="toggleActive('${doc.id}', ${!user.active})" class="bg-blue-600 text-white px-4 py-2 rounded">${user.active ? 'Nonaktifkan' : 'Aktifkan'}</button>
-      </div>
+/* MEMBER MANAGEMENT ----------------------------------- */
+const memberList = document.getElementById("memberList");
+if (memberList) loadMembers();
+
+async function loadMembers() {
+  const snap = await getDocs(collection(db, "users"));
+
+  memberList.innerHTML = `
+    <table class="w-full text-left">
+      <tr>
+        <th>Nama</th><th>Email</th><th>Role</th><th>Status</th><th>Aksi</th>
+      </tr>
+    `;
+
+  snap.forEach(d => {
+    const u = d.data();
+    memberList.innerHTML += `
+      <tr>
+        <td>${escapeHTML(u.displayName)}</td>
+        <td>${escapeHTML(u.email)}</td>
+        <td>${u.role}</td>
+        <td>${u.active ? "Aktif" : "Nonaktif"}</td>
+        <td>
+          <button onclick="toggleActive('${d.id}', ${!u.active})"
+                  class="px-2 py-1 bg-sky-600 text-white rounded">
+            ${u.active ? "Nonaktifkan" : "Aktifkan"}
+          </button>
+        </td>
+      </tr>
     `;
   });
+
+  memberList.innerHTML += `</table>`;
 }
 
-// Toggle aktif/nonaktif anggota
-export async function toggleActive(userId, active) {
-  await updateDoc(doc(db, 'users', userId), { active });
+window.toggleActive = async (uid, v) => {
+  await updateDoc(doc(db, "users", uid), { active: v });
   loadMembers();
-}
-
-// Event listeners
-document.getElementById('addBookBtn')?.addEventListener('click', () => {
-  document.getElementById('bookModal').classList.remove('hidden');
-  document.getElementById('modalTitle').textContent = 'Tambah Buku';
-  document.getElementById('bookForm').reset();
-});
-
-document.getElementById('closeModal')?.addEventListener('click', () => {
-  document.getElementById('bookModal').classList.add('hidden');
-});
-
-document.getElementById('bookForm')?.addEventListener('submit', (e) => {
-  e.preventDefault();
-  saveBook();
-});
-
-// Load data saat halaman load
-if (window.location.pathname.includes('books.html')) loadBooks();
-if (window.location.pathname.includes('members.html')) loadMembers();
+};
