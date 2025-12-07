@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Katalog Buku - Perpustakaan Digital SMK Negeri 3 Manado</title>
+    <!-- Tailwind CSS CDN untuk tema biru-putih modern -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <!-- Chart.js (opsional, jika diperlukan untuk visualisasi di katalog) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- DOMPurify untuk sanitasi -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3"></script>
+    <!-- Font Awesome untuk ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Custom CSS untuk animasi modern -->
+    <style>
+        .hover-scale:hover { transform: scale(1.05); transition: transform 0.3s ease; }
+        .gradient-bg { background: linear-gradient(135deg, #0ea5e9 0%, #ffffff 100%); }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+    <!-- Header responsif dengan navigasi -->
+    <header class="bg-blue-600 text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold flex items-center">
+                <i class="fas fa-book mr-2"></i> Perpustakaan SMK Negeri 3 Manado
+            </h1>
+            <nav class="space-x-4 hidden md:flex">
+                <a href="index.html" class="hover:text-blue-200 transition">Beranda</a>
+                <a href="katalog.html" class="hover:text-blue-200 transition font-bold">Katalog</a>
+                <a href="dashboard.html" class="hover:text-blue-200 transition">Dashboard</a>
+                <a href="login.html" class="bg-white text-blue-600 px-4 py-2 rounded hover:bg-gray-100 transition">Login</a>
+            </nav>
+            <!-- Mobile menu toggle -->
+            <button id="mobileMenuBtn" class="md:hidden text-white">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        <!-- Mobile menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-blue-700 px-4 py-2">
+            <a href="index.html" class="block py-2 hover:text-blue-200">Beranda</a>
+            <a href="katalog.html" class="block py-2 hover:text-blue-200 font-bold">Katalog</a>
+            <a href="dashboard.html" class="block py-2 hover:text-blue-200">Dashboard</a>
+            <a href="login.html" class="block py-2 bg-white text-blue-600 px-4 py-2 rounded mt-2 inline-block">Login</a>
+        </div>
+    </header>
+
+    <!-- Main Content: Katalog Buku Lengkap -->
+    <main class="container mx-auto px-4 py-8">
+        <h2 class="text-4xl font-bold text-center mb-8 text-blue-600 animate-pulse">Katalog Buku Lengkap</h2>
+        <p class="text-center text-lg mb-8 text-gray-700">Temukan buku favorit Anda dengan pencarian canggih dan filter. Klik detail untuk informasi lebih lanjut.</p>
+        
+        <!-- Form pencarian dan filter dengan desain modern -->
+        <div class="bg-white p-6 rounded-2xl shadow-2xl mb-8 hover:shadow-3xl transition-all duration-500">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <input type="text" id="searchInput" placeholder="Cari judul, penulis, atau ISBN..." class="p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                <select id="categoryFilter" class="p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                    <option value="">Semua Kategori</option>
+                    <!-- Dinamis dari JS -->
+                </select>
+                <select id="statusFilter" class="p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                    <option value="">Semua Status</option>
+                    <option value="available">Tersedia</option>
+                    <option value="borrowed">Dipinjam</option>
+                </select>
+                <button id="searchBtn" class="bg-blue-600 text-white px-6 py-4 rounded-lg hover:bg-blue-700 transition shadow-lg hover:shadow-xl hover-scale flex items-center justify-center">
+                    <i class="fas fa-search mr-2"></i>Cari
+                </button>
+            </div>
+        </div>
+        
+        <!-- Daftar buku dengan grid responsif dan animasi -->
+        <div id="bookList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            <!-- Buku akan dimuat dinamis oleh catalog.js -->
+        </div>
+        
+        <!-- Loading indicator -->
+        <div id="loading" class="text-center py-8 hidden">
+            <i class="fas fa-spinner fa-spin text-4xl text-blue-600"></i>
+            <p class="mt-4 text-gray-600">Memuat buku...</p>
+        </div>
+        
+        <!-- No results message -->
+        <div id="noResults" class="text-center py-8 hidden">
+            <i class="fas fa-book-open text-6xl text-gray-400 mb-4"></i>
+            <p class="text-xl text-gray-600">Tidak ada buku ditemukan. Coba ubah kata kunci atau filter.</p>
+        </div>
+        
+        <!-- Pagination dengan desain modern -->
+        <div class="mt-12 text-center">
+            <button id="prevBtn" class="bg-gray-300 text-gray-700 px-6 py-3 rounded-lg mr-4 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-400 transition shadow-lg hover:shadow-xl hover-scale">
+                <i class="fas fa-chevron-left mr-2"></i>Sebelumnya
+            </button>
+            <span id="pageInfo" class="text-lg font-semibold text-blue-600 bg-white px-4 py-2 rounded-lg shadow">Halaman 1</span>
+            <button id="nextBtn" class="bg-gray-300 text-gray-700 px-6 py-3 rounded-lg ml-4 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-400 transition shadow-lg hover:shadow-xl hover-scale">
+                Selanjutnya<i class="fas fa-chevron-right ml-2"></i>
+            </button>
+        </div>
+        
+        <!-- Infinite scroll trigger (opsional, jika menggunakan infinite scroll) -->
+        <div id="scrollTrigger" class="text-center py-8 hidden">
+            <button id="loadMoreBtn" class="bg-blue-600 text-white px-8 py-4 rounded-lg hover:bg-blue-700 transition shadow-lg hover:shadow-xl hover-scale">
+                <i class="fas fa-plus mr-2"></i>Muat Lebih Banyak
+            </button>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-blue-600 text-white text-center py-8 mt-8">
+        <div class="container mx-auto px-4">
+            <p class="mb-4">&copy; 2023 SMK Negeri 3 Manado. Dibuat dengan ❤️ menggunakan Firebase.</p>
+            <div class="flex justify-center space-x-6">
+                <a href="#" class="hover:text-blue-200 transition"><i class="fab fa-facebook"></i></a>
+                <a href="#" class="hover:text-blue-200 transition"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="hover:text-blue-200 transition"><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script type="module" src="assets/js/firebase-config.js"></script>
+    <script type="module" src="assets/js/auth.js"></script>
+    <script type="module" src="assets/js/catalog.js"></script>
+    <script type="module" src="assets/js/utils.js"></script>
+    <!-- Script untuk mobile menu -->
+    <script>
+        document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+            document.getElementById('mobileMenu').classList.toggle('hidden');
+        });
+    </script>
+</body>
+</html>

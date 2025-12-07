@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Anggota - Admin Perpustakaan SMK Negeri 3 Manado</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body class="bg-gray-50">
+    <header class="bg-blue-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Kelola Anggota (Admin)</h1>
+            <nav><a href="../dashboard.html" class="hover:text-blue-200">Kembali ke Dashboard</a></nav>
+        </div>
+    </header>
+    <main class="container mx-auto px-4 py-8">
+        <h2 class="text-3xl font-semibold mb-6">Daftar Anggota</h2>
+        <div id="membersList" class="space-y-4">
+            <!-- Anggota dimuat dinamis -->
+        </div>
+    </main>
+    <script type="module" src="../assets/js/firebase-config.js"></script>
+    <script type="module" src="../assets/js/book_manage.js"></script> <!-- Reuse untuk members, atau buat members.js terpisah -->
+    <script type="module" src="../assets/js/utils.js"></script>
+</body>
+</html>

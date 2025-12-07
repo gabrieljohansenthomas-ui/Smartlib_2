@@ -1,0 +1,88 @@
+{
+  "users": [
+    {
+      "uid": "admin-uid-placeholder",  // Ganti dengan UID asli dari Firebase Auth
+      "displayName": "Admin SMK 3 Manado",
+      "email": "admin@smkn3manado.edu",
+      "role": "admin",  // Role admin
+      "active": true,
+      "joinedAt": "2023-01-01T00:00:00Z"
+    },
+    {
+      "uid": "member1-uid-placeholder",  // Ganti dengan UID asli
+      "displayName": "Siswa 1",
+      "email": "siswa1@smkn3manado.edu",
+      "role": "member",  // Role member biasa
+      "active": true,
+      "joinedAt": "2023-02-01T00:00:00Z"
+    },
+    {
+      "uid": "member2-uid-placeholder",  // Ganti dengan UID asli
+      "displayName": "Siswa 2",
+      "email": "siswa2@smkn3manado.edu",
+      "role": "member",  // Role member biasa
+      "active": true,
+      "joinedAt": "2023-03-01T00:00:00Z"
+    }
+  ],
+  "books": [
+    {
+      "title": "Pemrograman Web Modern",
+      "author": "John Doe",
+      "isbn": "1234567890123",
+      "category": "Teknologi",
+      "description": "Panduan lengkap pemrograman web.",
+      "coverUrl": "https://example.com/cover1.jpg",
+      "totalStock": 5,
+      "availableStock": 3,
+      "createdAt": "2023-01-01T00:00:00Z",
+      "updatedAt": "2023-01-01T00:00:00Z",
+      "popularityScore": 10
+    },
+    {
+      "title": "Matematika Dasar",
+      "author": "Jane Smith",
+      "isbn": "9876543210987",
+      "category": "Pendidikan",
+      "description": "Buku matematika untuk siswa SMK.",
+      "coverUrl": "https://example.com/cover2.jpg",
+      "totalStock": 10,
+      "availableStock": 8,
+      "createdAt": "2023-01-02T00:00:00Z",
+      "updatedAt": "2023-01-02T00:00:00Z",
+      "popularityScore": 5
+    },
+    {
+      "title": "Sejarah Indonesia",
+      "author": "Ahmad Yani",
+      "isbn": "1122334455667",
+      "category": "Sejarah",
+      "description": "Kisah perjuangan bangsa.",
+      "coverUrl": "https://example.com/cover3.jpg",
+      "totalStock": 7,
+      "availableStock": 7,
+      "createdAt": "2023-01-03T00:00:00Z",
+      "updatedAt": "2023-01-03T00:00:00Z",
+      "popularityScore": 0
+    }
+  ],
+  "loans": [
+    {
+      "bookId": "book1-id-placeholder",
+      "userId": "member1-uid-placeholder",
+      "requestAt": "2023-05-01T00:00:00Z",
+      "approvedAt": "2023-05-02T00:00:00Z",
+      "dueDate": "2023-05-16T00:00:00Z",
+      "status": "approved"
+    }
+  ],
+  "reviews": [
+    {
+      "bookId": "book1-id-placeholder",
+      "userId": "member1-uid-placeholder",
+      "rating": 4,
+      "text": "Buku bagus untuk belajar!",
+      "createdAt": "2023-05-10T00:00:00Z"
+    }
+  ]
+}

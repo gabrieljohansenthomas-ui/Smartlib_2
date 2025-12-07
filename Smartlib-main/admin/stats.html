@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistik - Admin Perpustakaan SMK Negeri 3 Manado</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-50">
+    <header class="bg-blue-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Statistik (Admin)</h1>
+            <nav><a href="../dashboard.html" class="hover:text-blue-200">Kembali ke Dashboard</a></nav>
+        </div>
+    </header>
+    <main class="container mx-auto px-4 py-8">
+        <h2 class="text-3xl font-semibold mb-6">Dashboard Statistik</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h3 class="text-xl font-bold mb-4">Buku Terpopuler</h3>
+                <canvas id="topBooksChart"></canvas>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h3 class="text-xl font-bold mb-4">Peminjaman per Bulan</h3>
+                <canvas id="loansChart"></canvas>
+            </div>
+        </div>
+        <div class="mt-8">
+            <p>Total Anggota Aktif: <span id="activeMembers">0</span></p>
+        </div>
+    </main>
+    <script type="module" src="../assets/js/firebase-config.js"></script>
+    <script type="module" src="../assets/js/charts.js"></script>
+    <script type="module" src="../assets/js/utils.js"></script>
+</body>
+</html>

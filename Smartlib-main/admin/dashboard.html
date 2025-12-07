@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - Perpustakaan Digital SMK Negeri 3 Manado</title>
+    <!-- Tailwind CSS CDN untuk tema biru-putih modern -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <!-- Chart.js untuk statistik cepat -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- DOMPurify untuk sanitasi -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3"></script>
+    <!-- Font Awesome untuk ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Custom CSS untuk animasi modern (subtle) -->
+    <style>
+        .hover-scale:hover { transform: scale(1.02); transition: transform 0.4s ease; }
+        .gradient-bg { background: linear-gradient(135deg, #0ea5e9 0%, #ffffff 100%); }
+        .glow-effect:hover { box-shadow: 0 0 15px rgba(14, 165, 233, 0.3); transition: box-shadow 0.4s ease; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+    <!-- Header responsif dengan navigasi admin -->
+    <header class="bg-blue-600 text-white shadow-lg sticky top-0 z-50 glow-effect">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold flex items-center">
+                <i class="fas fa-cogs mr-2"></i>Dashboard Admin
+            </h1>
+            <nav class="space-x-4 hidden md:flex">
+                <a href="dashboard.html" class="hover:text-blue-200 transition duration-300 font-bold">Dashboard</a>
+                <a href="books.html" class="hover:text-blue-200 transition duration-300">Kelola Buku</a>
+                <a href="members.html" class="hover:text-blue-200 transition duration-300">Kelola Anggota</a>
+                <a href="stats.html" class="hover:text-blue-200 transition duration-300">Statistik</a>
+                <a href="../dashboard.html" class="hover:text-blue-200 transition duration-300">Kembali ke Utama</a>
+                <button id="logoutBtn" class="bg-white text-blue-600 px-4 py-2 rounded-lg hover:bg-gray-100 transition duration-300 shadow-md">Logout</button>
+            </nav>
+            <!-- Mobile menu toggle -->
+            <button id="mobileMenuBtn" class="md:hidden text-white hover:text-blue-200 transition duration-300">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        <!-- Mobile menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-blue-700 px-4 py-2">
+            <a href="dashboard.html" class="block py-2 hover:text-blue-200 transition duration-300 font-bold">Dashboard</a>
+            <a href="books.html" class="block py-2 hover:text-blue-200 transition duration-300">Kelola Buku</a>
+            <a href="members.html" class="block py-2 hover:text-blue-200 transition duration-300">Kelola Anggota</a>
+            <a href="stats.html" class="block py-2 hover:text-blue-200 transition duration-300">Statistik</a>
+            <a href="../dashboard.html" class="block py-2 hover:text-blue-200 transition duration-300">Kembali ke Utama</a>
+            <button id="logoutBtnMobile" class="block py-2 bg-white text-blue-600 px-4 py-2 rounded-lg mt-2 hover:bg-gray-100 transition duration-300">Logout</button>
+        </div>
+    </header>
+
+    <!-- Main Content: Dashboard Admin -->
+    <main class="container mx-auto px-4 py-8">
+        <h2 class="text-4xl font-bold text-center mb-8 text-blue-600">Selamat Datang, Admin!</h2>
+        <p class="text-center text-lg mb-8 text-gray-700">Kelola perpustakaan dengan mudah. Lihat overview cepat di bawah ini.</p>
+        
+        <!-- Overview Stats Cepat -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-lg shadow-md text-center hover:shadow-lg transition duration-400 hover-scale glow-effect">
+                <i class="fas fa-book text-4xl text-blue-600 mb-4"></i>
+                <h3 class="text-2xl font-bold text-blue-600" id="totalBooks">0</h3>
+                <p class="text-gray-600">Total Buku</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md text-center hover:shadow-lg transition duration-400 hover-scale glow-effect">
+                <i class="fas fa-users text-4xl text-blue-600 mb-4"></i>
+                <h3 class="text-2xl font-bold text-blue-600" id="totalMembers">0</h3>
+                <p class="text-gray-600">Total Anggota</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md text-center hover:shadow-lg transition duration-400 hover-scale glow-effect">
+                <i class="fas fa-clock text-4xl text-blue-600 mb-4"></i>
+                <h3 class="text-2xl font-bold text-blue-600" id="pendingLoans">0</h3>
+                <p class="text-gray-600">Peminjaman Pending</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md text-center hover:shadow-lg transition duration-400 hover-scale glow-effect">
+                <i class="fas fa-chart-line text-4xl text-blue-600 mb-4"></i>
+                <h3 class="text-2xl font-bold text-blue-600" id="totalLoans">0</h3>
+                <p class="text-gray-600">Total Peminjaman</p>
+            </div>
+        </div>
+        
+        <!-- Link Cepat ke Halaman Admin -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <a href="books.html" class="bg-blue-600 text-white p-6 rounded-lg shadow-md text-center hover:shadow-lg transition duration-400 hover-scale glow-effect">
+                <i class="fas fa-plus-circle text-4xl mb-4"></i>
+                <h4 class="text-xl font-semibold">Kelola Buku</h4>
+                <p>Tambah, edit, atau hapus buku dengan mudah.</p>
+            </a>
+            <a href="members.html" class="bg-blue-600 text-white p-6 rounded-lg shadow-md text-center hover:shadow-lg transition duration-400 hover-scale glow-effect">
+                <i class="fas fa-user-cog text-4xl mb-4"></i>
+                <h4 class="text-xl font-semibold">Kelola Anggota</h4>
+                <p>Lihat dan kelola akun anggota.</p>
+            </a>
+            <a href="stats.html" class="bg-blue-600 text-white p-6 rounded-lg shadow-md text-center hover:shadow-lg transition duration-400 hover-scale glow-effect">
+                <i class="fas fa-chart-bar text-4xl mb-4"></i>
+                <h4 class="text-xl font-semibold">Lihat Statistik</h4>
+                <p>Analisis data peminjaman dan buku.</p>
+            </a>
+        </div>
+        
+        <!-- Notifikasi Terbaru (Pending Requests) -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h4 class="text-2xl font-semibold mb-4 text-blue-600 flex items-center">
+                <i class="fas fa-bell mr-2"></i>Notifikasi Terbaru
+            </h4>
+            <div id="notificationsList" class="space-y-4">
+                <!-- Notifikasi akan dimuat dinamis -->
+                <p class="text-gray-600">Memuat notifikasi...</p>
+            </div>
+        </div>
+        
+        <!-- Chart Cepat (Opsional, menggunakan Chart.js) -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h4 class="text-2xl font-semibold mb-4 text-blue-600">Peminjaman Bulan Ini</h4>
+            <canvas id="loansChart" class="w-full h-64"></canvas>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-blue-600 text-white text-center py-8 mt-8">
+        <div class="container mx-auto px-4">
+            <p class="mb-4">&copy; 2023 SMK Negeri 3 Manado. Dibuat dengan ❤️ menggunakan Firebase.</p>
+            <div class="flex justify-center space-x-6">
+                <a href="#" class="hover:text-blue-200 transition"><i class="fab fa-facebook"></i></a>
+                <a href="#" class="hover:text-blue-200 transition"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="hover:text-blue-200 transition"><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts 
+    <script type="module" src="../assets/js/firebase-config.js"></script>
+    <script type="module" src="../assets/js/auth.js"></script>
+    <script type="module" src="../assets/js/charts.js"></script> <!-- Reuse untuk chart cepat -
+    <script type="module" src="../assets/js/utils.js"></script> -->
+    <!-- Script untuk mobile menu dan load data -->
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+            document.getElementById('mobileMenu').classList.toggle('hidden');
+        });
+        
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            // Reuse from auth.js
+            if (window.logout) window.logout();
+        });
+        document.getElementById('logoutBtnMobile').addEventListener('click', () => {
+            if (window.logout) window.logout();
+        });
+        
+        // Load overview stats (integrate with Firestore)
+        // TODO: Add function to fetch totalBooks, totalMembers, pendingLoans, totalLoans from Firestore
+        // Example: Use getDocs from collection('books'), etc.
+        // For now, placeholder
+        document.getElementById('totalBooks').textContent = 'Loading...';
+        // Load notifications (pending loans)
+        // TODO: Fetch pending loans and display
+    </script>
+</body>
+</html>
