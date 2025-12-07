@@ -1,54 +1,73 @@
-/**
- * seed/seed.js
- * Usage:
- * 1) For emulator: set FIRESTORE_EMULATOR_HOST=localhost:8080 and run node seed.js
- * 2) For real project: initialize admin SDK with serviceAccountKey (not included)
- */
+// Script untuk seed data - Jalankan dengan Node.js setelah setup Firebase
+// TODO: Install firebase-admin via npm install firebase-admin
 const admin = require('firebase-admin');
-const fs = require('fs');
+const serviceAccount = require('./serviceAccountKey.json'); // TODO: Download dari Firebase Console > Project Settings > Service accounts
+const data = require('./seedData.json');
 
-if (!process.env.FIRESTORE_EMULATOR_HOST) {
-  console.warn('Seeding recommended only in emulator or with a service account. Set FIRESTORE_EMULATOR_HOST to run in emulator.');
-}
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: 'https://your-project-id.firebaseio.com' // TODO: Ganti dengan project ID
+});
 
-admin.initializeApp();
 const db = admin.firestore();
 
-async function run() {
-  const raw = fs.readFileSync('./seedData.json', 'utf8');
-  const data = JSON.parse(raw);
-
-  // users
-  for (const u of data.users) {
-    await db.collection('users').doc(u.id).set({
-      displayName: u.displayName,
-      email: u.email,
-      role: u.role,
-      active: u.active,
-      subscribe: u.subscribe || false,
-      joinedAt: admin.firestore.FieldValue.serverTimestamp()
+// Import users (manual UID untuk admin)
+async function seedUsers() {
+  for (const user of data.users) {
+    await db.collection('users').doc(user.uid).set({
+      displayName: user.displayName,
+      email: user.email,
+      role: user.role,
+      active: user.active,
+      joinedAt: admin.firestore.Timestamp.fromDate(new Date(user.joinedAt))
     });
-    console.log('seeded user', u.id);
   }
-
-  // books
-  for (const b of data.books) {
-    const docRef = await db.collection('books').add({
-      title: b.title,
-      author: b.author,
-      isbn: b.isbn,
-      category: b.category,
-      description: b.description,
-      coverUrl: b.coverUrl,
-      totalStock: b.totalStock,
-      availableStock: b.availableStock,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      popularityScore: 0
-    });
-    console.log('seeded book', docRef.id, b.title);
-  }
-
-  console.log('Seeding complete');
+  console.log('Users seeded');
 }
-run().catch(console.error);
+
+// Import books
+async function seedBooks() {
+  for (const book of data.books) {
+    await db.collection('books').add({
+      ...book,
+      createdAt: admin.firestore.Timestamp.fromDate(new Date(book.createdAt)),
+      updatedAt: admin.firestore.Timestamp.fromDate(new Date(book.updatedAt))
+    });
+  }
+  console.log('Books seeded');
+}
+
+// Import loans dan reviews
+async function seedLoansAndReviews() {
+  for (const loan of data.loans) {
+    await db.collection('loans').add({
+      ...loan,
+      requestAt: admin.firestore.Timestamp.fromDate(new Date(loan.requestAt)),
+      approvedAt: loan.approvedAt ? admin.firestore.Timestamp.fromDate(new Date(loan.approvedAt)) : null,
+      dueDate: loan.dueDate ? admin.firestore.Timestamp.fromDate(new Date(loan.dueDate)) : null
+    });
+  }
+  for (const review of data.reviews) {
+    await db.collection('reviews').add({
+      ...review,
+      createdAt: admin.firestore.Timestamp.fromDate(new Date(review.createdAt))
+    });
+  }
+  console.log('Loans and reviews seeded');
+}
+
+// Jalankan semua
+async function runSeed() {
+  try {
+    await seedUsers();
+    await seedBooks();
+    await seedLoansAndReviews();
+    console.log('Seeding completed!');
+  } catch (error) {
+    console.error('Error seeding:', error);
+  } finally {
+    admin.app().delete();
+  }
+}
+
+runSeed();

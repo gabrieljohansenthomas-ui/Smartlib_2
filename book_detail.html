@@ -1,66 +1,38 @@
-<!--
-book_detail.html
-Detail buku: info buku, rating rata-rata, daftar ulasan, form tambah ulasan (member).
-Place at perpus-smkn3manado-frontend/book_detail.html
--->
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Detail Buku - Perpus</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
-  <link rel="stylesheet" href="assets/css/style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Buku - Perpustakaan SMK Negeri 3 Manado</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body class="bg-sky-50 min-h-screen">
-  <div class="max-w-5xl mx-auto p-6">
-    <nav class="mb-4">
-      <a href="katalog.html" class="text-sky-600">Kembali ke Katalog</a>
-    </nav>
-
-    <div id="book-container" class="bg-white p-6 rounded shadow">
-      <p>Memuat data buku…</p>
-    </div>
-
-    <section class="mt-6 bg-white p-4 rounded shadow">
-      <h3 class="font-semibold">Ulasan</h3>
-      <div id="reviews-list" class="mt-3 space-y-3"></div>
-
-      <div class="mt-4">
-        <h4 class="font-medium">Tambah ulasan</h4>
-        <form id="review-form" class="space-y-3 mt-2">
-          <select id="rating" class="p-2 border rounded" required>
-            <option value="">Pilih rating</option>
-            <option value="5">5 - Sangat baik</option>
-            <option value="4">4 - Baik</option>
-            <option value="3">3 - Cukup</option>
-            <option value="2">2 - Kurang</option>
-            <option value="1">1 - Buruk</option>
-          </select>
-          <textarea id="review-text" rows="4" class="w-full p-2 border rounded" placeholder="Tulis ulasan..."></textarea>
-          <button class="bg-sky-600 text-white px-4 py-2 rounded">Kirim Ulasan</button>
-        </form>
-      </div>
-    </section>
-  </div>
-
-  <!-- firebase compat -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
-
-  <script src="assets/js/firebase-config.js"></script>
-  <script src="assets/js/utils.js"></script>
-  <script src="assets/js/auth.js"></script>
-  <script src="assets/js/reviews.js"></script>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      Auth.setupAuthGuard();
-      Auth.signOutButton();
-      Reviews.init();
-    });
-  </script>
+<body class="bg-white">
+    <header class="bg-blue-600 text-white px-4 py-4">
+        <h1 class="text-xl font-bold">Detail Buku</h1>
+    </header>
+    <main class="container mx-auto px-4 py-8">
+        <div id="bookDetail" class="max-w-4xl mx-auto">
+            <!-- JS akan populate -->
+        </div>
+        <div id="reviewsSection" class="mt-8">
+            <h3 class="text-xl font-bold mb-4">Ulasan</h3>
+            <div id="reviewsList"></div>
+            <form id="reviewForm" class="mt-4 space-y-4">
+                <select id="rating" class="px-4 py-2 border rounded-lg" required>
+                    <option value="">Rating</option>
+                    <option value="1">1</option>
+                    <option value="5">5</option>
+                </select>
+                <textarea id="reviewText" placeholder="Tulis ulasan..." class="w-full px-4 py-2 border rounded-lg" rows="4"></textarea>
+                <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">Kirim Ulasan</button>
+            </form>
+        </div>
+    </main>
+    <script src="assets/js/firebase-config.js"></script>
+    <script src="assets/js/catalog.js"></script>
+    <script src="assets/js/reviews.js"></script>
+    <script src="assets/js/utils.js"></script>
 </body>
 </html>

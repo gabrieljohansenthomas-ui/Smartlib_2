@@ -1,61 +1,42 @@
 # Sistem Perpustakaan Digital SMK Negeri 3 Manado
 
-Aplikasi web perpustakaan digital dengan frontend modern (HTML/CSS/JS + Tailwind) dan backend Firebase (Auth, Firestore, Functions).
+Aplikasi web modern untuk manajemen perpustakaan menggunakan Firebase.
 
-## Fitur Utama
-- Autentikasi role-based (admin/member).
-- Katalog buku dengan pencarian, filter, dan detail.
-- Manajemen buku/admin/anggota (admin-only).
-- Peminjaman & pengembalian otomatis.
-- Review & rating.
-- Notifikasi email otomatis.
-- Statistik dengan Chart.js.
-- Backup terjadwal.
+## Setup dan Deployment
 
-## Setup & Deploy
-
-### 1. Persiapan
-- Buat proyek Firebase di [Firebase Console](https://console.firebase.google.com/).
+### 1. Persiapan Firebase
+- Buat proyek di [Firebase Console](https://console.firebase.google.com/).
 - Enable Authentication (Email/Password), Firestore, Functions, Hosting.
-- Download service account key untuk seed (Project Settings > Service accounts).
-- Buat akun SendGrid dan dapatkan API key.
+- Buat Firestore DB (mode production).
+- Download `serviceAccountKey.json` untuk seed (Project Settings > Service accounts).
+- Set rules di `firestore.rules` dan deploy.
 
-### 2. Konfigurasi
-- Ganti `FIREBASE_CONFIG_HERE` di `assets/js/firebase-config.js` dengan config dari Firebase Console.
-- Set env untuk functions: `firebase functions:config:set sendgrid.key "YOUR_SENDGRID_KEY" smtp.user "your-email" smtp.pass "your-pass"`.
-- Upload firestore.rules dan firebase.json.
+### 2. Konfigurasi Environment
+- Untuk email: `firebase functions:config:set smtp.host="your-smtp-host" smtp.user="your-email" smtp.pass="your-pass"` (atau SendGrid API key).
+- Ganti placeholder di `firebase-config.js` dengan config dari Firebase Console.
 
-### 3. Install & Run Lokal
-- Install Firebase CLI: `npm install -g firebase-tools`.
-- Login: `firebase login`.
-- Init proyek: `firebase use --add` (pilih proyek).
-- Install dependencies: `cd functions && npm install`.
-- Import seed: `cd seed && node seed.js` (setelah ganti placeholder).
-- Run emulators: `firebase emulators:start`.
-- Akses di http://localhost:5000.
+### 3. Install Dependencies
+- `npm install -g firebase-tools`
+- Di `functions/`: `npm install`
+- Di `seed/`: `npm install firebase-admin`
 
-### 4. Deploy
-- Deploy functions: `firebase deploy --only functions`.
-- Deploy hosting: `firebase deploy --only hosting`.
-- Deploy firestore: `firebase deploy --only firestore`.
+### 4. Seed Data
+- Jalankan `node seed/seed.js` setelah setup Firebase.
 
-### 5. Initial Admin
-- Daftar sebagai member, lalu update role ke "admin" di Firestore Console.
+### 5. Local Testing
+- `firebase emulators:start --only auth,firestore,functions,hosting`
+- Buka http://localhost:5000
 
-### 6. Branding & Modifikasi
-- Ubah warna di Tailwind classes (e.g., `bg-blue-600` ke custom).
-- TODO: Tambah field subscribe di users untuk notifikasi buku baru.
+### 6. Deploy
+- `firebase deploy --only functions,firestore,hosting`
 
-## Keamanan
-- Sanitasi XSS dengan DOMPurify.
-- Firestore rules mencegah unauthorized access.
-- Validasi client/server-side.
-- CSRF mitigated by Firebase Auth + HTTPS.
+### 7. Scheduled Functions
+- Functions otomatis deploy dengan pubsub.schedule().
 
-## Perintah Shell untuk ZIP
-zip -r perpus-smkn3manado.zip perpus-smkn3manado-frontend functions firebase.json firestore.rules
+### Catatan Keamanan
+- Jangan commit keys; gunakan .env atau functions:config.
+- CSRF mitigated by Firebase Auth; XSS by DOMPurify; Injection by prepared queries.
 
-## Catatan
-- Kode mudah dimodifikasi; lihat komentar TODO.
-- Jika error, periksa logs: `firebase functions:log`.
-- UI responsif, accessible dengan semantic HTML.
+## Modifikasi
+- TODO: Ubah warna di style.css, tambahkan fitur di JS.
+- Initial admin: Set manual di Firebase Console atau via seed.

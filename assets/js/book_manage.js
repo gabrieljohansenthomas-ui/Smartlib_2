@@ -1,179 +1,115 @@
-/**
- * book_manage.js
- * Admin CRUD for books and member activation management.
- * - init() to manage books
- * - initMembers() to list and toggle user active status
- *
- * Uses firebaseDb (compat).
- */
+import { db } from './firebase-config.js';
+import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, query, where } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
 
-const BookManage = (function () {
-  const db = window.firebaseDb;
+// CRUD Buku (Admin only) - Lanjutan
+export async function updateBook(id, data) {
+    if (!validateBookData(data)) return alert('Data tidak valid');
+    await updateDoc(doc(db, 'books', id), { ...data, updatedAt: new Date() });
+}
 
-  async function init() {
-    bindForm();
-    await renderList();
-  }
+export async function deleteBook(id) {
+    await deleteDoc(doc(db, 'books', id));
+}
 
-  function bindForm() {
-    const form = document.getElementById('book-form');
-    const clearBtn = document.getElementById('clear');
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const id = document.getElementById('book-id').value || null;
-      const data = {
-        title: document.getElementById('title').value.trim(),
-        author: document.getElementById('author').value.trim(),
-        isbn: document.getElementById('isbn').value.trim(),
-        category: document.getElementById('category').value.trim(),
-        description: document.getElementById('description').value.trim(),
-        coverUrl: document.getElementById('coverUrl').value.trim(),
-        totalStock: Number(document.getElementById('totalStock').value || 0),
-      };
-      // validation
-      if (!Utils.validateText(data.title, 2)) return alert('Judul minimal 2 karakter');
-      if (!Utils.validateText(data.author, 2)) return alert('Penulis minimal 2 karakter');
-      if (!Utils.validateText(data.category, 1)) return alert('Kategori wajib');
+// Validasi input untuk buku (client-side + server-side di functions)
+function validateBookData(data) {
+    if (data.title.length > 100 || data.author.length > 50 || data.isbn.length !== 13) return false;
+    if (data.totalStock < 1) return false;
+    return true; // TODO: Tambahkan validasi URL cover jika perlu
+}
 
-      try {
-        if (id) {
-          // update: if totalStock changes, adjust availableStock accordingly (simple policy: set availableStock = totalStock if increased)
-          const docRef = db.collection('books').doc(id);
-          const snap = await docRef.get();
-          if (snap.exists) {
-            const current = snap.data();
-            let availableStock = current.availableStock || 0;
-            // if totalStock decreased below available, clamp availableStock
-            if (data.totalStock < (current.totalStock || 0)) {
-              availableStock = Math.min(availableStock, data.totalStock);
-            } else if (data.totalStock > (current.totalStock || 0)) {
-              // increase availableStock by diff
-              availableStock = (availableStock || 0) + (data.totalStock - (current.totalStock || 0));
-            }
-            await docRef.update({ ...data, updatedAt: firebase.firestore.FieldValue.serverTimestamp(), availableStock });
-          }
-        } else {
-          // create new book
-          await db.collection('books').add({
-            ...data,
-            availableStock: data.totalStock,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-            popularityScore: 0
-          });
-        }
-        form.reset();
-        await renderList();
-      } catch (err) {
-        console.error('save book', err);
-        alert('Gagal menyimpan buku: ' + err.message);
-      }
-    });
+// Load dan display tabel buku
+export async function loadBooks() {
+    const snapshot = await getDocs(collection(db, 'books'));
+    const books = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    document.getElementById('booksTable').innerHTML = `
+        <table class="w-full table-auto border-collapse border border-gray-300">
+            <thead>
+                <tr class="bg-gray-100">
+                    <th class="border px-4 py-2">Judul</th>
+                    <th class="border px-4 py-2">Penulis</th>
+                    <th class="border px-4 py-2">Stok</th>
+                    <th class="border px-4 py-2">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${books.map(book => `
+                    <tr>
+                        <td class="border px-4 py-2">${book.title}</td>
+                        <td class="border px-4 py-2">${book.author}</td>
+                        <td class="border px-4 py-2">${book.availableStock}/${book.totalStock}</td>
+                        <td class="border px-4 py-2">
+                            <button onclick="editBook('${book.id}')" class="text-blue-600">Edit</button>
+                            <button onclick="deleteBook('${book.id}')" class="text-red-600 ml-2">Hapus</button>
+                        </td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+}
 
-    clearBtn.addEventListener('click', () => form.reset());
-  }
+// CRUD Anggota (Admin: aktifkan/nonaktifkan)
+export async function toggleUserActive(uid, active) {
+    await updateDoc(doc(db, 'users', uid), { active });
+}
 
-  async function renderList() {
-    const list = document.getElementById('book-list');
-    list.innerHTML = 'Memuat...';
-    try {
-      const snap = await db.collection('books').orderBy('title').get();
-      if (snap.empty) { list.innerHTML = '<p>Tidak ada buku.</p>'; return; }
-      list.innerHTML = '';
-      snap.forEach(doc => {
-        const d = doc.data();
-        const el = document.createElement('div');
-        el.className = 'p-3 border rounded flex justify-between items-center';
-        el.innerHTML = `
-          <div>
-            <div class="font-semibold">${Utils.escapeHTML(d.title)}</div>
-            <div class="text-sm text-slate-600">${Utils.escapeHTML(d.author)} — ${Utils.escapeHTML(d.category)}</div>
-            <div class="text-sm">Stok: ${d.availableStock || 0} / ${d.totalStock || 0}</div>
-          </div>
-          <div class="flex gap-2">
-            <button data-id="${doc.id}" class="edit-btn px-3 py-1 border rounded">Edit</button>
-            <button data-id="${doc.id}" class="delete-btn px-3 py-1 border rounded">Hapus</button>
-          </div>
-        `;
-        list.appendChild(el);
-      });
-      // handlers
-      list.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', async () => {
-        const id = btn.dataset.id;
-        const snap = await db.collection('books').doc(id).get();
-        if (!snap.exists) return;
-        const d = snap.data();
-        document.getElementById('book-id').value = id;
-        document.getElementById('title').value = d.title || '';
-        document.getElementById('author').value = d.author || '';
-        document.getElementById('isbn').value = d.isbn || '';
-        document.getElementById('category').value = d.category || '';
-        document.getElementById('description').value = d.description || '';
-        document.getElementById('coverUrl').value = d.coverUrl || '';
-        document.getElementById('totalStock').value = d.totalStock || 0;
-      }));
+export async function loadMembers() {
+    const snapshot = await getDocs(collection(db, 'users'));
+    const members = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    document.getElementById('membersTable').innerHTML = `
+        <table class="w-full table-auto border-collapse border border-gray-300">
+            <thead>
+                <tr class="bg-gray-100">
+                    <th class="border px-4 py-2">Nama</th>
+                    <th class="border px-4 py-2">Email</th>
+                    <th class="border px-4 py-2">Status</th>
+                    <th class="border px-4 py-2">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${members.map(member => `
+                    <tr>
+                        <td class="border px-4 py-2">${member.displayName}</td>
+                        <td class="border px-4 py-2">${member.email}</td>
+                        <td class="border px-4 py-2">${member.active ? 'Aktif' : 'Nonaktif'}</td>
+                        <td class="border px-4 py-2">
+                            <button onclick="toggleUserActive('${member.id}', ${!member.active})" class="text-blue-600">${member.active ? 'Nonaktifkan' : 'Aktifkan'}</button>
+                        </td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+}
 
-      list.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', async () => {
-        const id = btn.dataset.id;
-        if (!confirm('Hapus buku ini?')) return;
-        try {
-          await db.collection('books').doc(id).delete();
-          await renderList();
-        } catch (e) { console.error(e); alert('Gagal menghapus'); }
-      }));
-
-    } catch (err) {
-      console.error('renderList', err);
-      list.innerHTML = '<p>Gagal memuat daftar buku.</p>';
+// Event listeners untuk modal dan form
+document.addEventListener('DOMContentLoaded', () => {
+    if (window.location.pathname.includes('books.html')) {
+        loadBooks();
+        document.getElementById('addBookBtn')?.addEventListener('click', () => {
+            document.getElementById('bookModal').classList.remove('hidden');
+        });
+        document.getElementById('closeModal')?.addEventListener('click', () => {
+            document.getElementById('bookModal').classList.add('hidden');
+        });
+        document.getElementById('bookForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = {
+                title: document.getElementById('title').value,
+                author: document.getElementById('author').value,
+                isbn: document.getElementById('isbn').value,
+                category: document.getElementById('category').value,
+                description: document.getElementById('description').value,
+                coverUrl: document.getElementById('coverUrl').value,
+                totalStock: parseInt(document.getElementById('totalStock').value)
+            };
+            await addBook(data);
+            loadBooks();
+            document.getElementById('bookModal').classList.add('hidden');
+        });
     }
-  }
-
-  // member management
-  async function initMembers() {
-    const container = document.getElementById('members-list');
-    container.innerHTML = 'Memuat...';
-    try {
-      const snap = await db.collection('users').orderBy('joinedAt').get();
-      if (snap.empty) { container.innerHTML = '<p>Tidak ada anggota.</p>'; return; }
-      container.innerHTML = '';
-      snap.forEach(doc => {
-        const d = doc.data();
-        const el = document.createElement('div');
-        el.className = 'p-3 border rounded flex justify-between items-center';
-        el.innerHTML = `
-          <div>
-            <div class="font-semibold">${Utils.escapeHTML(d.displayName || d.email)}</div>
-            <div class="text-sm text-slate-600">${Utils.escapeHTML(d.email)}</div>
-            <div class="text-sm">Role: ${Utils.escapeHTML(d.role || 'member')}</div>
-          </div>
-          <div>
-            <button data-id="${doc.id}" data-active="${d.active !== false}" class="toggle-btn px-3 py-1 border rounded">${d.active !== false ? 'Nonaktifkan' : 'Aktifkan'}</button>
-          </div>
-        `;
-        container.appendChild(el);
-      });
-
-      container.querySelectorAll('.toggle-btn').forEach(btn => btn.addEventListener('click', async () => {
-        const id = btn.dataset.id;
-        const current = btn.dataset.active === 'true';
-        try {
-          await db.collection('users').doc(id).update({ active: !current });
-          initMembers(); // refresh
-        } catch (e) {
-          console.error('toggle active', e);
-          alert('Gagal update status');
-        }
-      }));
-    } catch (err) {
-      console.error('initMembers', err);
-      container.innerHTML = '<p>Gagal memuat anggota.</p>';
+    if (window.location.pathname.includes('members.html')) {
+        loadMembers();
     }
-  }
-
-  return {
-    init,
-    initMembers
-  };
-})();
-
-window.BookManage = BookManage;
+});

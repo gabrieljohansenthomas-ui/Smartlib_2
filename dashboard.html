@@ -1,58 +1,22 @@
-<!--
-dashboard.html
-Landing after login: role-based redirect / dashboard menu.
-Admin users should be redirected to admin area or see admin links.
-Place at perpus-smkn3manado-frontend/dashboard.html
--->
-
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Dashboard — Perpus</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="assets/css/style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Perpustakaan SMK Negeri 3 Manado</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body class="bg-sky-50 min-h-screen">
-  <div class="max-w-6xl mx-auto p-6">
-
-    <header class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-semibold text-sky-700">Dashboard</h1>
-      <div>
-        <a id="goto-catalog" href="katalog.html" class="mr-3">Katalog</a>
-        <button id="signout" class="bg-white border px-3 py-1 rounded">Keluar</button>
-      </div>
-    </header>
-
-    <section class="grid md:grid-cols-3 gap-6">
-      <div class="bg-white p-4 rounded shadow">
-        <h3 class="font-semibold">Profil</h3>
-        <div id="profile" class="mt-3 text-sm text-slate-700">Memuat profil…</div>
-      </div>
-
-      <div class="bg-white p-4 rounded shadow">
-        <h3 class="font-semibold">Aksi</h3>
-        <div class="mt-3 space-y-2">
-          <a href="borrow.html" class="block bg-sky-600 text-white px-3 py-2 rounded">Permintaan Peminjaman</a>
-          <a href="history.html" class="block border px-3 py-2 rounded">Riwayat Peminjaman Saya</a>
+<body class="bg-white">
+    <div class="container mx-auto px-4 py-8">
+        <h2 class="text-2xl font-bold text-blue-600 mb-4">Dashboard</h2>
+        <div id="dashboardContent">
+            <!-- JS akan mengisi berdasarkan role -->
         </div>
-      </div>
-
-      <div id="admin-panel" class="bg-white p-4 rounded shadow hidden">
-        <h3 class="font-semibold">Panel Admin</h3>
-        <div class="mt-3 space-y-2">
-          <a href="admin/books.html" class="block border px-3 py-2 rounded">Manajemen Buku</a>
-          <a href="admin/members.html" class="block border px-3 py-2 rounded">Manajemen Anggota</a>
-          <a href="admin/stats.html" class="block border px-3 py-2 rounded">Statistik</a>
-          <a href="admin/loans.html" class="block border px-3 py-2 rounded">Peminjaman (Requests)</a>
-        </div>
-      </div>
-    </section>
-
-  </div>
-
-  <script src="assets/js/utils.js"></script>
-  <!-- auth.js will fill profile and decide to show admin panel (Auth.setupDashboard()) -->
+    </div>
+    <script src="assets/js/firebase-config.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/utils.js"></script>
 </body>
 </html>

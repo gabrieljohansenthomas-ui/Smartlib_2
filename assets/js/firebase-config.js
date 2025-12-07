@@ -1,38 +1,55 @@
-/**
- * firebase-config.js (compat)
- * Initialize Firebase using compat SDK so the app can run without bundler.
- *
- * IMPORTANT:
- * - Replace the placeholder values below with your Firebase project settings.
- * - Do NOT commit real API keys to public repositories.
- *
- * How to get config:
- * - Firebase Console -> Project Settings -> SDK setup and configuration -> Firebase SDK snippet
- */
+import { db } from './firebase-config.js';
+import { collection, getDocs, query, where, orderBy } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+import Chart from 'https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.js';
 
-// TODO: replace values with your Firebase project's config
-const firebaseConfig = {
-    apiKey: "AIzaSyAF_-NLJRCn-pDrfwsKM1JL3oBvJ176iGU",
-    authDomain: "smartlib-0710.firebaseapp.com",
-    projectId: "smartlib-0710",
-    storageBucket: "smartlib-0710.firebasestorage.app",
-    messagingSenderId: "668732924028",
-    appId: "1:668732924028:web:a6d0043a4a123d084729f9",
-    measurementId: "G-L1QJMKC1YF"
-  };
+// Load data dan render chart
+export async function loadCharts() {
+    // Top books by loans
+    const loans = await getDocs(collection(db, 'loans'));
+    const bookCounts = {};
+    loans.docs.forEach(doc => {
+        const bookId = doc.data().bookId;
+        bookCounts[bookId] = (bookCounts[bookId] || 0) + 1;
+    });
+    const topBooks = Object.entries(bookCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+    const ctx1 = document.getElementById('topBooksChart').getContext('2d');
+    new Chart(ctx1, {
+        type: 'bar',
+        data: {
+            labels: topBooks.map(([id]) => `Buku ${id}`),
+            datasets: [{ label: 'Jumlah Peminjaman', data: topBooks.map(([, count]) => count), backgroundColor: '#0ea5e9' }]
+        }
+    });
 
-// Initialize Firebase app (compat)
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
+    // Loans per month (last 6 months)
+    const now = new Date();
+    const months = [];
+    for (let i = 5; i >= 0; i--) {
+        const month = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        months.push(month);
+    }
+    const monthlyCounts = months.map(month => {
+        const count = loans.docs.filter(doc => {
+            const date = new Date(doc.data().requestAt.seconds * 1000);
+            return date.getMonth() === month.getMonth() && date.getFullYear() === month.getFullYear();
+        }).length;
+        return count;
+    });
+    const ctx2 = document.getElementById('loansPerMonthChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'line',
+        data: {
+            labels: months.map(m => m.toLocaleDateString('id', { month: 'short', year: 'numeric' })),
+            datasets: [{ label: 'Peminjaman', data: monthlyCounts, borderColor: '#0ea5e9' }]
+        }
+    });
+
+    // Active members
+    const users = await getDocs(query(collection(db, 'users'), where('active', '==', true)));
+    document.getElementById('activeMembers').textContent = users.size;
 }
 
-// Expose frequently-used services globally to other scripts
-window.firebaseApp = firebase.app();
-window.firebaseAuth = firebase.auth();
-window.firebaseDb = firebase.firestore();
-window.firebaseFunctions = firebase.functions();
-
-// Note: for local emulator testing, run these commands in console (example):
-// firebase.firestore().useEmulator("localhost", 8080);
-// firebase.auth().useEmulator("http://localhost:9099/");
-// firebase.functions().useEmulator("localhost", 5001);
+// Load on page
+document.addEventListener('DOMContentLoaded', () => {
+    if (window.location.pathname.includes('stats.html')) loadCharts();
+});

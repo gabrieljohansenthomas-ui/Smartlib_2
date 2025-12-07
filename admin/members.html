@@ -1,46 +1,30 @@
-<!--
-admin/members.html
-Admin: list members and activate/deactivate accounts
-Place at perpus-smkn3manado-frontend/admin/members.html
--->
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Admin — Anggota</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="../assets/css/style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen Anggota - Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+    <link rel="stylesheet" href="../assets/css/style.css">
 </head>
-<body class="bg-sky-50 min-h-screen">
-  <div class="max-w-6xl mx-auto p-6">
-    <header class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-semibold text-sky-700">Manajemen Anggota</h1>
-      <div>
-        <a href="books.html" class="mr-3">Buku</a>
-        <a href="stats.html" class="mr-3">Statistik</a>
-        <a href="loans.html" class="mr-3">Peminjaman</a>
-      </div>
-    </header>
-
-    <section class="bg-white p-6 rounded shadow">
-      <div id="members-list" class="space-y-3">Memuat daftar anggota...</div>
-    </section>
-  </div>
-
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
-  <script src="../assets/js/firebase-config.js"></script>
-  <script src="../assets/js/utils.js"></script>
-  <script src="../assets/js/auth.js"></script>
-  <script src="../assets/js/book_manage.js"></script>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      Auth.requireAdmin();
-      BookManage.initMembers();
-    });
-  </script>
+<body class="bg-white flex">
+    <aside class="w-64 bg-blue-600 text-white min-h-screen p-4">
+        <h2 class="text-xl font-bold mb-6">Admin Panel</h2>
+        <nav class="space-y-2">
+            <a href="books.html" class="block py-2 px-4 hover:bg-blue-700 rounded">Buku</a>
+            <a href="members.html" class="block py-2 px-4 bg-blue-700 rounded">Anggota</a>
+            <a href="stats.html" class="block py-2 px-4 hover:bg-blue-700 rounded">Statistik</a>
+        </nav>
+    </aside>
+    <main class="flex-1 p-8">
+        <h1 class="text-2xl font-bold mb-6">Manajemen Anggota</h1>
+        <div id="membersTable" class="overflow-x-auto">
+            <!-- JS akan populate -->
+        </div>
+    </main>
+    <script src="../assets/js/firebase-config.js"></script>
+    <script src="../assets/js/book_manage.js"></script> <!-- Reuse for members CRUD -->
+    <script src="../assets/js/utils.js"></script>
 </body>
 </html>

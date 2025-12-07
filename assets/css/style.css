@@ -1,24 +1,25 @@
-/* style.css
-   Minimal custom CSS for branding and small utilities.
-   Tailwind provides primary styles. Customize brand color or fonts here.
-*/
-
-/* Brand theme color: #0ea5e9 (sky-500) */
+/* Custom overrides for Tailwind - Tema biru-putih */
+/* TODO: Ubah warna utama jika perlu branding */
 :root {
-  --brand: #0ea5e9;
+    --primary-color: #0ea5e9; /* Biru untuk CTA */
+    --secondary-color: #ffffff; /* Putih untuk background */
 }
 
-/* Basic reset for images */
-img.cover {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  border-radius: 6px;
+/* Animasi halus untuk hover */
+.hover-effect {
+    transition: all 0.3s ease;
 }
 
-/* Accessibility helper */
-.sr-only {
-  position: absolute !important;
-  width: 1px; height: 1px; padding: 0; margin: -1px;
-  overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+/* Responsif untuk mobile */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
 }
+
+/* Aksesibilitas: Focus visible */
+button:focus, input:focus {
+    outline: 2px solid var(--primary-color);
+}
+
+/* Minimal custom - Tailwind handles most */

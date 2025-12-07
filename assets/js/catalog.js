@@ -1,136 +1,67 @@
-/**
- * catalog.js
- * Client-side catalog queries and rendering, with simple pagination.
- * Uses firebaseDb (compat) global from firebase-config.js
- *
- * Behavior:
- * - load categories (unique values from books)
- * - perform query (orderBy title) and apply client-side text match for search
- * - pagination: limit + startAfter (using timestamp/index) where available
- *
- * Note: Firestore doesn't support full-text search. This implementation uses basic
- * substring matching client-side. For production scale, integrate Algolia.
- */
+import { db } from './firebase-config.js';
+import { collection, query, where, orderBy, limit, getDocs, doc, getDoc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+import { DOMPurify } from 'https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js';
 
-const Catalog = (function () {
-  const db = window.firebaseDb;
-  const pageSize = 9;
-  let lastVisible = null;
-  let currentFilter = { q: '', category: '', status: '' };
+// Fetch dan display katalog dengan search/filter/pagination
+export async function loadCatalog(search = '', category = '', status = '', page = 1) {
+    const booksRef = collection(db, 'books');
+    let q = query(booksRef, orderBy('title'), limit(10 * page)); // Pagination sederhana
+    if (category) q = query(q, where('category', '==', category));
+    // Status filter: available if availableStock > 0
+    const snapshot = await getDocs(q);
+    const books = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })).filter(book => {
+        if (status === 'available') return book.availableStock > 0;
+        if (status === 'borrowed') return book.availableStock <= 0;
+        return book.title.toLowerCase().includes(search.toLowerCase());
+    });
+    displayBooks(books);
+}
 
-  async function loadCategories() {
-    // fetch up to 200 docs and gather categories (simple approach)
-    try {
-      const snap = await db.collection('books').orderBy('category').limit(200).get();
-      const set = new Set();
-      snap.forEach(d => {
-        if (d.data().category) set.add(d.data().category);
-      });
-      const sel = document.getElementById('category-filter');
-      if (!sel) return;
-      set.forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c; opt.textContent = c;
-        sel.appendChild(opt);
-      });
-    } catch (e) {
-      console.error('loadCategories', e);
+// Display books dengan sanitasi
+function displayBooks(books) {
+    const container = document.getElementById('bookList') || document.getElementById('featuredBooks');
+    container.innerHTML = books.map(book => `
+        <div class="bg-white p-4 rounded-lg shadow hover:shadow-lg transition">
+            <img src="${book.coverUrl || 'placeholder.jpg'}" alt="${DOMPurify.sanitize(book.title)}" class="w-full h-48 object-cover mb-4">
+            <h3 class="font-bold">${DOMPurify.sanitize(book.title)}</h3>
+            <p>Penulis: ${DOMPurify.sanitize(book.author)}</p>
+            <p>Stok: ${book.availableStock}/${book.totalStock}</p>
+            <a href="book_detail.html?id=${book.id}" class="text-blue-600 hover:underline">Lihat Detail</a>
+        </div>
+    `).join('');
+}
+
+// Load detail buku + rata-rata rating
+export async function loadBookDetail(bookId) {
+    const bookDoc = await getDoc(doc(db, 'books', bookId));
+    if (bookDoc.exists()) {
+        const book = bookDoc.data();
+        const avgRating = await calculateAvgRating(bookId);
+        document.getElementById('bookDetail').innerHTML = `
+            <img src="${book.coverUrl}" alt="${DOMPurify.sanitize(book.title)}" class="w-full h-64 object-cover mb-4">
+            <h2 class="text-2xl font-bold">${DOMPurify.sanitize(book.title)}</h2>
+            <p>Rating: ${avgRating}/5</p>
+            <p>${DOMPurify.sanitize(book.description)}</p>
+            <button id="borrowBtn" class="bg-blue-600 text-white px-4 py-2 rounded">Pinjam</button>
+        `;
     }
-  }
+}
 
-  function renderBookCard(doc) {
-    const d = doc.data();
-    const el = document.createElement('div');
-    el.className = 'border rounded p-3 bg-white';
-    const cover = Utils.escapeHTML(d.coverUrl || 'https://via.placeholder.com/200x300?text=No+Cover');
-    const title = Utils.escapeHTML(d.title || '');
-    const author = Utils.escapeHTML(d.author || '');
-    const avail = (d.availableStock || 0) > 0 ? 'Tersedia' : 'Dipinjam';
-    el.innerHTML = `
-      <img src="${cover}" alt="${title}" class="cover mb-2"/>
-      <h4 class="font-semibold">${title}</h4>
-      <p class="text-sm text-slate-600">${author}</p>
-      <p class="mt-2"><strong>${avail}</strong></p>
-      <div class="mt-2 flex gap-2">
-        <a href="book_detail.html?bookId=${doc.id}" class="px-3 py-1 bg-sky-600 text-white rounded">Detail</a>
-        <a href="borrow.html?bookId=${doc.id}" class="px-3 py-1 border rounded">Pinjam</a>
-      </div>
-    `;
-    return el;
-  }
+// Helper: Hitung rata-rata rating
+async function calculateAvgRating(bookId) {
+    const reviews = await getDocs(query(collection(db, 'reviews'), where('bookId', '==', bookId)));
+    const ratings = reviews.docs.map(doc => doc.data().rating);
+    return ratings.length ? (ratings.reduce((a, b) => a + b) / ratings.length).toFixed(1) : 0;
+}
 
-  async function loadFirstPage() {
-    lastVisible = null;
-    const results = document.getElementById('results');
-    results.innerHTML = '';
-    currentFilter.q = (document.getElementById('q') || {}).value || '';
-    currentFilter.category = (document.getElementById('category-filter') || {}).value || '';
-    currentFilter.status = (document.getElementById('status-filter') || {}).value || '';
-
-    try {
-      let q = db.collection('books').orderBy('title').limit(pageSize);
-      if (currentFilter.category) q = db.collection('books').where('category', '==', currentFilter.category).orderBy('title').limit(pageSize);
-
-      const snap = await q.get();
-      if (snap.empty) {
-        results.innerHTML = '<p>Tidak ada buku ditemukan.</p>';
-        return;
-      }
-      snap.forEach(doc => {
-        const d = doc.data();
-        // client-side text filter
-        if (currentFilter.q) {
-          const hay = (d.title + ' ' + d.author + ' ' + (d.isbn || '')).toLowerCase();
-          if (!hay.includes(currentFilter.q.toLowerCase())) return;
-        }
-        // status filter
-        if (currentFilter.status === 'available' && (d.availableStock || 0) <= 0) return;
-        if (currentFilter.status === 'borrowed' && (d.availableStock || 0) > 0) return;
-
-        const card = renderBookCard(doc);
-        results.appendChild(card);
-      });
-      lastVisible = snap.docs[snap.docs.length - 1];
-    } catch (e) {
-      console.error('loadFirstPage', e);
-    }
-  }
-
-  async function loadMore() {
-    if (!lastVisible) return;
-    const results = document.getElementById('results');
-    try {
-      let q = db.collection('books').orderBy('title').startAfter(lastVisible).limit(pageSize);
-      if (currentFilter.category) q = db.collection('books').where('category', '==', currentFilter.category).orderBy('title').startAfter(lastVisible).limit(pageSize);
-      const snap = await q.get();
-      if (snap.empty) return;
-      snap.forEach(doc => {
-        const d = doc.data();
-        if (currentFilter.q) {
-          const hay = (d.title + ' ' + d.author + ' ' + (d.isbn || '')).toLowerCase();
-          if (!hay.includes(currentFilter.q.toLowerCase())) return;
-        }
-        if (currentFilter.status === 'available' && (d.availableStock || 0) <= 0) return;
-        if (currentFilter.status === 'borrowed' && (d.availableStock || 0) > 0) return;
-        results.appendChild(renderBookCard(doc));
-      });
-      lastVisible = snap.docs[snap.docs.length - 1];
-    } catch (e) {
-      console.error('loadMore', e);
-    }
-  }
-
-  return {
-    init: async function () {
-      await loadCategories();
-      await loadFirstPage();
-      const searchBtn = document.getElementById('search-btn');
-      if (searchBtn) searchBtn.addEventListener('click', (ev) => { ev.preventDefault(); loadFirstPage(); });
-      const loadMoreBtn = document.getElementById('load-more');
-      if (loadMoreBtn) loadMoreBtn.addEventListener('click', loadMore);
-    }
-  };
-})();
-
-// expose
-window.Catalog = Catalog;
+// Event listeners
+document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const bookId = urlParams.get('id');
+    if (bookId) loadBookDetail(bookId);
+    else loadCatalog();
+    // Search/filter events
+    document.getElementById('searchInput')?.addEventListener('input', () => loadCatalog(document.getElementById('searchInput').value));
+    document.getElementById('categoryFilter')?.addEventListener('change', () => loadCatalog('', document.getElementById('categoryFilter').value));
+    document.getElementById('statusFilter')?.addEventListener('change', () => loadCatalog('', '', document.getElementById('statusFilter').value));
+});

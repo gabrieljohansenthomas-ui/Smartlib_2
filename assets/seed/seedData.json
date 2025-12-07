@@ -1,19 +1,77 @@
 {
   "users": [
-    { "id": "admin1", "displayName": "Admin Utama", "email": "admin@example.edu", "role": "admin", "active": true },
-    { "id": "member1", "displayName": "Siswa A", "email": "siswa1@example.edu", "role": "member", "active": true, "subscribe": true },
-    { "id": "member2", "displayName": "Siswa B", "email": "siswa2@example.edu", "role": "member", "active": true }
+    {
+      "uid": "admin1",
+      "displayName": "Admin Utama",
+      "email": "admin@smkn3manado.sch.id",
+      "role": "admin",
+      "active": true,
+      "joinedAt": "2023-01-01T00:00:00Z"
+    },
+    {
+      "uid": "member1",
+      "displayName": "Siswa A",
+      "email": "siswa1@smkn3manado.sch.id",
+      "role": "member",
+      "active": true,
+      "joinedAt": "2023-02-01T00:00:00Z"
+    },
+    {
+      "uid": "member2",
+      "displayName": "Siswa B",
+      "email": "siswa2@smkn3manado.sch.id",
+      "role": "member",
+      "active": true,
+      "joinedAt": "2023-03-01T00:00:00Z"
+    }
   ],
   "books": [
-    { "title": "Pemrograman Python untuk Pemula", "author": "A. Programmer", "isbn": "978-1", "category": "Teknologi", "description": "Pengantar Python", "coverUrl": "https://via.placeholder.com/300x400?text=Python", "totalStock": 5, "availableStock": 5 },
-    { "title": "Basis Data Praktis", "author": "D. Database", "isbn": "978-2", "category": "Teknologi", "description": "Dasar DBMS", "coverUrl": "https://via.placeholder.com/300x400?text=DB", "totalStock": 3, "availableStock": 3 },
-    { "title": "Jaringan Komputer", "author": "Net Guru", "isbn": "978-3", "category": "Teknologi", "description": "Jaringan dasar", "coverUrl": "https://via.placeholder.com/300x400?text=Net", "totalStock": 4, "availableStock": 4 },
-    { "title": "Matematika Diskrit", "author": "M. Matematika", "isbn": "978-4", "category": "Sains", "description": "Matematika diskrit untuk informatik", "coverUrl": "https://via.placeholder.com/300x400?text=MD", "totalStock": 2, "availableStock": 2 },
-    { "title": "Algoritma dan Struktur Data", "author": "Algo Master", "isbn": "978-5", "category": "Teknologi", "description": "Algoritma dasar", "coverUrl": "https://via.placeholder.com/300x400?text=Algo", "totalStock": 6, "availableStock": 6 },
-    { "title": "Bahasa Indonesia", "author": "Sastrawan", "isbn": "978-6", "category": "Sastra", "description": "Materi bahasa Indonesia", "coverUrl": "https://via.placeholder.com/300x400?text=BI", "totalStock": 3, "availableStock": 3 },
-    { "title": "Sejarah Dunia", "author": "Sejarawan", "isbn": "978-7", "category": "Referensi", "description": "Ringkasan sejarah dunia", "coverUrl": "https://via.placeholder.com/300x400?text=Sejarah", "totalStock": 4, "availableStock": 4 },
-    { "title": "Kepemimpinan", "author": "Leader", "isbn": "978-8", "category": "Pengembangan Diri", "description": "Buku kepemimpinan", "coverUrl": "https://via.placeholder.com/300x400?text=Leader", "totalStock": 2, "availableStock": 2 },
-    { "title": "Fisika Dasar", "author": "Fisikawan", "isbn": "978-9", "category": "Sains", "description": "Fisika dasar untuk pemula", "coverUrl": "https://via.placeholder.com/300x400?text=Fisika", "totalStock": 4, "availableStock": 4 },
-    { "title": "Kimia Umum", "author": "Kimiawan", "isbn": "978-10", "category": "Sains", "description": "Kimia umum", "coverUrl": "https://via.placeholder.com/300x400?text=Kimia", "totalStock": 3, "availableStock": 3 }
+    {
+      "title": "Matematika Dasar",
+      "author": "Penulis A",
+      "isbn": "1234567890123",
+      "category": "Pelajaran",
+      "description": "Buku matematika untuk SMK.",
+      "coverUrl": "https://example.com/cover1.jpg",
+      "totalStock": 5,
+      "availableStock": 3,
+      "createdAt": "2023-01-01T00:00:00Z",
+      "updatedAt": "2023-01-01T00:00:00Z",
+      "popularityScore": 10
+    },
+    
+    {
+      "title": "Fisika Lanjutan",
+      "author": "Penulis B",
+      "isbn": "1234567890124",
+      "category": "Pelajaran",
+      "description": "Buku fisika.",
+      "coverUrl": "https://example.com/cover2.jpg",
+      "totalStock": 4,
+      "availableStock": 4,
+      "createdAt": "2023-01-02T00:00:00Z",
+      "updatedAt": "2023-01-02T00:00:00Z",
+      "popularityScore": 8
+    }
+    
+  ],
+  "loans": [
+    {
+      "bookId": "book1",
+      "userId": "member1",
+      "requestAt": "2023-05-01T00:00:00Z",
+      "approvedAt": "2023-05-02T00:00:00Z",
+      "dueDate": "2023-05-16T00:00:00Z",
+      "status": "approved"
+    }
+  ],
+  "reviews": [
+    {
+      "bookId": "book1",
+      "userId": "member1",
+      "rating": 4,
+      "text": "Buku bagus!",
+      "createdAt": "2023-05-10T00:00:00Z"
+    }
   ]
 }

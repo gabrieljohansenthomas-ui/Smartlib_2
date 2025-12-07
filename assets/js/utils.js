@@ -1,58 +1,23 @@
-/**
- * utils.js
- * Shared helper utilities for frontend.
- * Place at perpus-smkn3manado-frontend/assets/js/utils.js
- *
- * Notes:
- * - Use DOMPurify (loaded in each HTML) to sanitize HTML where needed.
- * - Escape text before injecting into innerHTML to reduce XSS risk.
- */
+// Helper functions untuk sanitasi, format, dll.
+// Sanitasi XSS untuk innerHTML
+export function sanitizeHTML(html) {
+    return DOMPurify.sanitize(html);
+}
 
-// Basic namespace
-const Utils = (function () {
-  return {
-    // Escape text for safe insertion into innerHTML where only text intended
-    escapeHTML: function (str) {
-      if (str === undefined || str === null) return '';
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-    },
+// Format tanggal
+export function formatDate(timestamp) {
+    return new Date(timestamp.seconds * 1000).toLocaleDateString('id');
+}
 
-    // Sanitize HTML fragment using DOMPurify (global) if available
-    sanitizeHTML: function (html) {
-      if (typeof DOMPurify !== 'undefined') {
-        return DOMPurify.sanitize(html);
-      }
-      // Fallback: escape everything (no HTML)
-      return Utils.escapeHTML(html);
-    },
+// Escape HTML untuk insertion
+export function escapeHTML(str) {
+    return str.replace(/[&<>"']/g, (match) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    }[match]));
+}
 
-    // Format Firestore Timestamp or Date to readable date
-    formatDate: function (ts) {
-      if (!ts) return '-';
-      let d = ts;
-      if (d.toDate) d = d.toDate();
-      return new Date(d).toLocaleDateString('id-ID');
-    },
-
-    // Simple client-side form validation utility
-    validateText: function (value, minLen = 1) {
-      if (!value || String(value).trim().length < minLen) return false;
-      return true;
-    },
-
-    // Small helper to create DOM nodes from HTML string
-    createElementFromHTML: function (htmlString) {
-      const div = document.createElement('div');
-      div.innerHTML = htmlString.trim();
-      return div.firstChild;
-    }
-  };
-})();
-
-// expose globally for other scripts
-window.Utils = Utils;
+// TODO: Tambahkan helper lain seperti pagination offset jika perlu

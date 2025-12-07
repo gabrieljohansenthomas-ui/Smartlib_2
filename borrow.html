@@ -1,63 +1,24 @@
-<!--
-borrow.html
-Halaman untuk membuat permintaan peminjaman buku (member).
-Place at perpus-smkn3manado-frontend/borrow.html
-
-Flow:
-- Membaca bookId dari querystring
-- Menampilkan ringkasan buku
-- Member dapat mengirim request (status: requested)
-- Setelah request dibuat, admin akan menerima di admin/loans.html untuk konfirmasi
--->
-
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Permintaan Peminjaman — Perpus</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
-  <link rel="stylesheet" href="assets/css/style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peminjaman - Perpustakaan SMK Negeri 3 Manado</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body class="bg-sky-50 min-h-screen">
-  <div class="max-w-4xl mx-auto p-6">
-    <nav class="mb-4"><a href="katalog.html" class="text-sky-600">Kembali ke Katalog</a></nav>
-
-    <div class="bg-white p-6 rounded shadow">
-      <h1 class="text-xl font-semibold">Permintaan Peminjaman</h1>
-      <div id="book-summary" class="mt-4">Memuat...</div>
-
-      <form id="borrow-form" class="mt-4">
-        <div>
-          <label class="block text-sm text-slate-600">Catatan (opsional)</label>
-          <textarea id="note" class="w-full p-2 border rounded" rows="3" placeholder="Contoh: ingin pinjam untuk tugas..."></textarea>
+<body class="bg-white">
+    <header class="bg-blue-600 text-white px-4 py-4">
+        <h1 class="text-xl font-bold">Riwayat Peminjaman</h1>
+    </header>
+    <main class="container mx-auto px-4 py-8">
+        <div id="borrowHistory" class="space-y-4">
+            <!-- JS akan populate -->
         </div>
-        <div class="mt-4">
-          <button class="bg-sky-600 text-white px-4 py-2 rounded">Kirim Permintaan</button>
-        </div>
-      </form>
-
-      <p id="borrow-msg" class="mt-3 text-sm"></p>
-    </div>
-  </div>
-
-  <!-- firebase compat -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
-
-  <script src="assets/js/firebase-config.js"></script>
-  <script src="assets/js/utils.js"></script>
-  <script src="assets/js/auth.js"></script>
-  <script src="assets/js/borrow.js"></script>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      Auth.setupAuthGuard();
-      Auth.signOutButton();
-      Borrow.init();
-    });
-  </script>
+    </main>
+    <script src="assets/js/firebase-config.js"></script>
+    <script src="assets/js/borrow.js"></script>
+    <script src="assets/js/utils.js"></script>
 </body>
 </html>
