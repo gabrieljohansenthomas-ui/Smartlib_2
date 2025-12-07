@@ -1,70 +1,104 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Helper function: Cek role admin
+    function isAdmin() {
+      return request.auth != null && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
 
-    // Users collection
+    // Helper function: Cek role member dan active
+    function isActiveMember() {
+      return request.auth != null && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'member' &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.active == true;
+    }
+
+    // Helper function: Validasi data buku
+    function validBookData() {
+      return request.resource.data.keys().hasAll(['title', 'author', 'isbn', 'category', 'description', 'coverUrl', 'totalStock', 'availableStock', 'createdAt', 'updatedAt', 'popularityScore']) &&
+             request.resource.data.title is string && request.resource.data.title.size() <= 100 &&
+             request.resource.data.author is string && request.resource.data.author.size() <= 50 &&
+             request.resource.data.isbn is string && request.resource.data.isbn.size() == 13 &&
+             request.resource.data.category is string && request.resource.data.category.size() <= 50 &&
+             request.resource.data.description is string && request.resource.data.description.size() <= 500 &&
+             request.resource.data.coverUrl is string && request.resource.data.coverUrl.size() <= 200 &&
+             request.resource.data.totalStock is int && request.resource.data.totalStock > 0 &&
+             request.resource.data.availableStock is int && request.resource.data.availableStock >= 0;
+    }
+
+    // Helper function: Validasi data loan
+    function validLoanData() {
+      return request.resource.data.keys().hasAll(['bookId', 'userId', 'requestAt', 'status']) &&
+             request.resource.data.bookId is string &&
+             request.resource.data.userId == request.auth.uid &&
+             request.resource.data.status in ['requested', 'approved', 'rejected', 'returned', 'overdue'];
+    }
+
+    // Helper function: Validasi data review
+    function validReviewData() {
+      return request.resource.data.keys().hasAll(['bookId', 'userId', 'rating', 'text', 'createdAt']) &&
+             request.resource.data.bookId is string &&
+             request.resource.data.userId == request.auth.uid &&
+             request.resource.data.rating is int && request.resource.data.rating >= 1 && request.resource.data.rating <= 5 &&
+             request.resource.data.text is string && request.resource.data.text.size() <= 300;
+    }
+
+    // Collection: users
     match /users/{userId} {
-      allow create: if request.auth != null && request.auth.uid == userId;
-      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
-      allow update: if request.auth != null && (
-        // user may update displayName and subscribe themselves
-        (request.auth.uid == userId && request.resource.data.keys().hasOnly(['displayName','subscribe'])) 
-        || isAdmin()
-      );
-      allow delete: if isAdmin();
+      // Read: Admin bisa read semua; member hanya read sendiri
+      allow read: if request.auth != null && (isAdmin() || request.auth.uid == userId);
+      // Write: Admin bisa update semua (termasuk active); member hanya create/update sendiri jika active
+      allow create: if isActiveMember() && request.auth.uid == userId && request.resource.data.role == 'member';
+      allow update: if isAdmin() || (isActiveMember() && request.auth.uid == userId && 
+                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName', 'email']));
+      // Admin bisa toggle active
+      allow update: if isAdmin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['active']);
     }
 
-    // Books: read public; write only admin
+    // Collection: books
     match /books/{bookId} {
-      allow read: if true;
-      allow create, update, delete: if isAdmin();
-      // Basic validation on create/update
-      allow create: if isAdmin() && validateBook(request.resource.data);
-      allow update: if isAdmin() && validateBook(request.resource.data);
+      // Read: Semua yang login bisa read
+      allow read: if request.auth != null;
+      // Write: Hanya admin (CRUD lengkap)
+      allow create, update, delete: if isAdmin() && validBookData();
     }
 
-    // Loans: members create loans for themselves; admin can read/write
+    // Collection: loans
     match /loans/{loanId} {
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId
-                    && request.resource.data.keys().hasAll(['bookId','userId','requestAt','status'])
-                    && request.resource.data.status == 'requested';
-      allow read: if request.auth != null && (isAdmin() || request.auth.uid == resource.data.userId);
-      // updates: only admin should change status and dates
-      allow update: if isAdmin();
-      allow delete: if isAdmin();
+      // Read: Admin read semua; member read hanya miliknya
+      allow read: if isAdmin() || (isActiveMember() && resource.data.userId == request.auth.uid);
+      // Write: Member create request untuk diri sendiri; admin update (approve/reject/return)
+      allow create: if isActiveMember() && validLoanData() && request.resource.data.status == 'requested';
+      allow update: if isAdmin() || (isActiveMember() && resource.data.userId == request.auth.uid && 
+                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']) && 
+                      request.resource.data.status == 'requested'); // Member hanya bisa cancel request
     }
 
-    // Reviews: authenticated users can create; validated rating 1..5
+    // Collection: reviews
     match /reviews/{reviewId} {
-      allow create: if request.auth != null
-                    && request.auth.uid == request.resource.data.userId
-                    && request.resource.data.rating is int
-                    && request.resource.data.rating >= 1
-                    && request.resource.data.rating <= 5
-                    && request.resource.data.text is string
-                    && request.resource.data.text.size() <= 2000;
-      allow read: if true;
-      allow delete: if isAdmin() || (request.auth != null && request.auth.uid == resource.data.userId);
+      // Read: Semua yang login bisa read
+      allow read: if request.auth != null;
+      // Write: Member create jika pernah pinjam buku (cek di loans)
+      allow create: if isActiveMember() && validReviewData() &&
+                     exists(/databases/$(database)/documents/loans/$(request.resource.data.bookId + '_' + request.auth.uid)) &&
+                     get(/databases/$(database)/documents/loans/$(request.resource.data.bookId + '_' + request.auth.uid)).data.status in ['approved', 'returned'];
+      // Update/Delete: Hanya admin atau pemilik review
+      allow update, delete: if isAdmin() || (isActiveMember() && resource.data.userId == request.auth.uid);
     }
 
-    // backups: only admin
-    match /backups/{id} {
+    // Collection: backups (opsional, untuk snapshot)
+    match /backups/{backupId} {
+      // Read/Write: Hanya admin
       allow read, write: if isAdmin();
     }
 
-    // helper functions
-    function isAdmin() {
-      return request.auth != null
-        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
-        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.active != false;
-    }
-
-    function validateBook(data) {
-      return data.title is string && data.title.size() > 1
-        && data.author is string && data.author.size() > 1
-        && data.category is string && data.category.size() > 0
-        && data.totalStock is int && data.totalStock >= 0
-        && (data.availableStock is int && data.availableStock >= 0);
+    // Collection: notifications (opsional)
+    match /notifications/{notifId} {
+      // Read/Write: Hanya admin (untuk kirim notif)
+      allow read, write: if isAdmin();
     }
   }
 }
