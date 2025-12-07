@@ -1,46 +1,74 @@
-<!DOCTYPE html>
+<!--
+katalog.html
+Katalog buku: search, filter kategori & status, pagination (load more).
+Place at perpus-smkn3manado-frontend/katalog.html
+-->
+<!doctype html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Katalog Buku</title>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Katalog Buku - Perpus SMK3 Manado</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.3/dist/purify.min.js"></script>
-
-  <script type="module" src="assets/js/firebase-config.js"></script>
-  <script type="module" src="assets/js/utils.js"></script>
-  <script type="module" src="assets/js/catalog.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
+  <link rel="stylesheet" href="assets/css/style.css" />
 </head>
+<body class="bg-sky-50 min-h-screen">
 
-<body class="bg-gray-50">
-
-  <div class="max-w-7xl mx-auto px-4 py-10">
-
-    <h1 class="text-3xl font-bold text-sky-700 mb-6">Katalog Buku</h1>
-
-    <!-- Search + Filters -->
-    <div class="grid md:grid-cols-3 gap-4 mb-6">
-
-      <input id="searchInput" class="border px-4 py-2 rounded"
-             placeholder="Cari judul / penulis..." />
-
-      <select id="categoryFilter" class="border px-4 py-2 rounded">
-        <option value="">Semua Kategori</option>
-      </select>
-
-      <select id="statusFilter" class="border px-4 py-2 rounded">
-        <option value="">Semua Status</option>
-        <option value="available">Tersedia</option>
-        <option value="borrowed">Dipinjam</option>
-      </select>
-
+  <nav class="bg-white shadow">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+      <a href="index.html" class="text-lg font-semibold text-sky-600">Perpus SMK3MDO</a>
+      <div>
+        <a id="btn-dashboard" href="dashboard.html" class="mr-4">Dashboard</a>
+        <button id="signout" class="bg-white border px-3 py-1 rounded">Keluar</button>
+      </div>
     </div>
+  </nav>
 
-    <!-- Book List -->
-    <div id="bookList" class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+  <main class="max-w-6xl mx-auto p-6">
+    <section class="bg-white p-6 rounded shadow">
+      <div class="flex gap-3 mb-4">
+        <input id="q" placeholder="Cari judul, pengarang, isbn..." class="flex-1 p-2 border rounded" />
+        <select id="category-filter" class="p-2 border rounded">
+          <option value="">Semua kategori</option>
+        </select>
+        <select id="status-filter" class="p-2 border rounded">
+          <option value="">Semua status</option>
+          <option value="available">Tersedia</option>
+          <option value="borrowed">Dipinjam</option>
+        </select>
+        <button id="search-btn" class="bg-sky-600 text-white px-4 py-2 rounded">Cari</button>
+      </div>
 
-  </div>
+      <div id="results" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
 
+      <div class="mt-4 text-center">
+        <button id="load-more" class="px-4 py-2 border rounded">Muat lebih banyak</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Firebase compat SDKs (no bundler required) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
+
+  <!-- App scripts -->
+  <script src="assets/js/firebase-config.js"></script>
+  <script src="assets/js/utils.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/catalog.js"></script>
+
+  <script>
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Setup auth guard + signout button
+      Auth.setupAuthGuard();
+      Auth.signOutButton('signout');
+      // Start catalog logic
+      await Catalog.init();
+    });
+  </script>
 </body>
 </html>

@@ -1,12 +1,24 @@
-/* Global custom overrides for Tailwind */
+/* style.css
+   Minimal custom CSS for branding and small utilities.
+   Tailwind provides primary styles. Customize brand color or fonts here.
+*/
 
-/* Navbar shadow enhancement */
-.nav-shadow {
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+/* Brand theme color: #0ea5e9 (sky-500) */
+:root {
+  --brand: #0ea5e9;
 }
 
-/* Card hover effect */
-.card-hover:hover {
-  transform: translateY(-3px);
-  transition: 0.2s ease;
+/* Basic reset for images */
+img.cover {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+/* Accessibility helper */
+.sr-only {
+  position: absolute !important;
+  width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
 }

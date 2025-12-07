@@ -1,110 +1,70 @@
-// Firestore Security Rules — Perpus SMKN 3 Manado
-// -------------------------------------------------
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    /* =============================
-       AUTHENTICATION GENERAL
-    ============================== */
-
-    function isLoggedIn() {
-      return request.auth != null;
+    // Users collection
+    match /users/{userId} {
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      allow update: if request.auth != null && (
+        // user may update displayName and subscribe themselves
+        (request.auth.uid == userId && request.resource.data.keys().hasOnly(['displayName','subscribe'])) 
+        || isAdmin()
+      );
+      allow delete: if isAdmin();
     }
 
-    function isAdmin() {
-      return isLoggedIn() &&
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
-    }
-
-    function isActiveUser() {
-      return isLoggedIn() &&
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.active == true;
-    }
-
-    /* =============================
-       USERS COLLECTION
-    ============================== */
-
-    match /users/{uid} {
-
-      allow read: if isAdmin();
-
-      allow create: if true; // Register user
-
-      allow update: if isLoggedIn() &&
-                      (
-                        // User edit data sendiri (kecuali role/active)
-                        (request.auth.uid == uid &&
-                          !(request.resource.data.role in ["admin", "member"]) &&
-                          !(request.resource.data.active in [true, false])
-                        )
-                        ||
-                        // Admin boleh mengubah role & active
-                        (isAdmin())
-                      );
-
-      allow delete: if false;
-    }
-
-    /* =============================
-       BOOKS COLLECTION (ADMIN ONLY)
-    ============================== */
-
+    // Books: read public; write only admin
     match /books/{bookId} {
-
       allow read: if true;
-
       allow create, update, delete: if isAdmin();
+      // Basic validation on create/update
+      allow create: if isAdmin() && validateBook(request.resource.data);
+      allow update: if isAdmin() && validateBook(request.resource.data);
     }
 
-    /* =============================
-       LOANS COLLECTION
-    ============================== */
-
+    // Loans: members create loans for themselves; admin can read/write
     match /loans/{loanId} {
-
-      allow read: if isAdmin() ||
-        (isLoggedIn() && request.auth.uid == resource.data.userId);
-
-      allow create: if isLoggedIn() &&
-                     isActiveUser() &&
-                     request.resource.data.userId == request.auth.uid;
-
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId
+                    && request.resource.data.keys().hasAll(['bookId','userId','requestAt','status'])
+                    && request.resource.data.status == 'requested';
+      allow read: if request.auth != null && (isAdmin() || request.auth.uid == resource.data.userId);
+      // updates: only admin should change status and dates
       allow update: if isAdmin();
-
-      allow delete: if false;
+      allow delete: if isAdmin();
     }
 
-    /* =============================
-       REVIEWS COLLECTION
-    ============================== */
-
+    // Reviews: authenticated users can create; validated rating 1..5
     match /reviews/{reviewId} {
-
+      allow create: if request.auth != null
+                    && request.auth.uid == request.resource.data.userId
+                    && request.resource.data.rating is int
+                    && request.resource.data.rating >= 1
+                    && request.resource.data.rating <= 5
+                    && request.resource.data.text is string
+                    && request.resource.data.text.size() <= 2000;
       allow read: if true;
-
-      allow create: if isLoggedIn() &&
-        isActiveUser() &&
-        request.resource.data.rating >= 1 &&
-        request.resource.data.rating <= 5 &&
-        // user harus pernah pinjam buku itu dan return
-        exists(
-          /databases/$(database)/documents/loans/$(request.resource.data.loanId)
-        );
-
-      allow update: if false;
-      allow delete: if false;
+      allow delete: if isAdmin() || (request.auth != null && request.auth.uid == resource.data.userId);
     }
 
-    /* =============================
-       BACKUPS COLLECTION (READ ONLY ADMIN)
-    ============================== */
-
+    // backups: only admin
     match /backups/{id} {
-      allow read: if isAdmin();
-      allow write: if false;
+      allow read, write: if isAdmin();
+    }
+
+    // helper functions
+    function isAdmin() {
+      return request.auth != null
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.active != false;
+    }
+
+    function validateBook(data) {
+      return data.title is string && data.title.size() > 1
+        && data.author is string && data.author.size() > 1
+        && data.category is string && data.category.size() > 0
+        && data.totalStock is int && data.totalStock >= 0
+        && (data.availableStock is int && data.availableStock >= 0);
     }
   }
 }

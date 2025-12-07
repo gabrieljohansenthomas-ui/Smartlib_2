@@ -1,45 +1,47 @@
 <!--
-admin/members.html
-Admin: list members and activate/deactivate accounts
-Place at perpus-smkn3manado-frontend/admin/members.html
+admin/loans.html
+Admin: daftar request peminjaman, approve/deny, catat pengembalian
+Place at perpus-smkn3manado-frontend/admin/loans.html
 -->
 <!doctype html>
 <html lang="id">
 <head>
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Admin — Anggota</title>
+  <title>Admin — Peminjaman</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="../assets/css/style.css" />
 </head>
 <body class="bg-sky-50 min-h-screen">
   <div class="max-w-6xl mx-auto p-6">
     <header class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-semibold text-sky-700">Manajemen Anggota</h1>
+      <h1 class="text-2xl font-semibold text-sky-700">Manajemen Peminjaman</h1>
       <div>
         <a href="books.html" class="mr-3">Buku</a>
+        <a href="members.html" class="mr-3">Anggota</a>
         <a href="stats.html" class="mr-3">Statistik</a>
-        <a href="loans.html" class="mr-3">Peminjaman</a>
       </div>
     </header>
 
     <section class="bg-white p-6 rounded shadow">
-      <div id="members-list" class="space-y-3">Memuat daftar anggota...</div>
+      <h2 class="font-semibold">Permintaan Peminjaman</h2>
+      <div id="loanList" class="mt-4">Memuat permintaan peminjaman...</div>
     </section>
   </div>
 
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
 
   <script src="../assets/js/firebase-config.js"></script>
   <script src="../assets/js/utils.js"></script>
   <script src="../assets/js/auth.js"></script>
-  <script src="../assets/js/book_manage.js"></script>
+  <script src="../assets/js/loans_admin.js"></script>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       Auth.requireAdmin();
-      BookManage.initMembers();
+      LoansAdmin.init();
     });
   </script>
 </body>

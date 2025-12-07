@@ -1,53 +1,88 @@
-<!DOCTYPE html>
+<!--
+admin/books.html
+Admin: manage books (CRUD)
+Place at perpus-smkn3manado-frontend/admin/books.html
+-->
+<!doctype html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Manajemen Buku – Admin</title>
-
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin — Buku</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.3/dist/purify.min.js"></script>
-
-  <script type="module" src="../assets/js/firebase-config.js"></script>
-  <script type="module" src="../assets/js/utils.js"></script>
-  <script type="module" src="../assets/js/auth.js"></script>
-  <script type="module" src="../assets/js/book_manage.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
+  <link rel="stylesheet" href="../assets/css/style.css" />
 </head>
-
-<body class="bg-gray-50">
-
-  <div class="max-w-6xl mx-auto py-10 px-4">
-
-    <h1 class="text-3xl font-bold text-sky-700 mb-6">Manajemen Buku</h1>
-
-    <!-- Add Book -->
-    <div class="bg-white p-6 rounded shadow mb-8">
-      <h2 class="text-xl font-bold mb-4">Tambah Buku Baru</h2>
-
-      <div class="grid md:grid-cols-2 gap-4">
-
-        <input id="bookTitle" class="border px-3 py-2 rounded" placeholder="Judul buku">
-        <input id="bookAuthor" class="border px-3 py-2 rounded" placeholder="Penulis">
-        <input id="bookISBN" class="border px-3 py-2 rounded" placeholder="ISBN">
-        <input id="bookCategory" class="border px-3 py-2 rounded" placeholder="Kategori">
-        <input id="bookStock" type="number" class="border px-3 py-2 rounded" placeholder="Stok Total">
-        <input id="bookCover" class="border px-3 py-2 rounded" placeholder="URL Cover">
-
-        <textarea id="bookDescription" class="border px-3 py-2 rounded md:col-span-2"
-                  placeholder="Deskripsi buku"></textarea>
+<body class="bg-sky-50 min-h-screen">
+  <div class="max-w-6xl mx-auto p-6">
+    <header class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-semibold text-sky-700">Manajemen Buku — Admin</h1>
+      <div>
+        <a href="members.html" class="mr-3">Anggota</a>
+        <a href="stats.html" class="mr-3">Statistik</a>
+        <a href="loans.html" class="mr-3">Peminjaman</a>
+        <button id="signout" class="bg-white px-3 py-1 border rounded">Keluar</button>
       </div>
+    </header>
 
-      <button id="addBookBtn"
-              class="mt-4 px-4 py-2 bg-sky-600 text-white rounded hover:bg-sky-700">
-        Tambah Buku
-      </button>
-    </div>
+    <section class="bg-white p-6 rounded shadow">
+      <h2 class="font-semibold">Tambah / Edit Buku</h2>
+      <form id="book-form" class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+        <input id="book-id" type="hidden" />
+        <div>
+          <label>Judul</label>
+          <input id="title" class="w-full p-2 border rounded" required />
+        </div>
+        <div>
+          <label>Penulis</label>
+          <input id="author" class="w-full p-2 border rounded" required />
+        </div>
+        <div>
+          <label>ISBN</label>
+          <input id="isbn" class="w-full p-2 border rounded" />
+        </div>
+        <div>
+          <label>Kategori</label>
+          <input id="category" class="w-full p-2 border rounded" required />
+        </div>
+        <div>
+          <label>Stok</label>
+          <input id="totalStock" type="number" min="0" class="w-full p-2 border rounded" required />
+        </div>
+        <div>
+          <label>Cover URL</label>
+          <input id="coverUrl" class="w-full p-2 border rounded" />
+        </div>
+        <div class="md:col-span-2">
+          <label>Deskripsi</label>
+          <textarea id="description" rows="4" class="w-full p-2 border rounded"></textarea>
+        </div>
 
-    <!-- List -->
-    <h2 class="text-xl font-bold mb-4">Daftar Buku</h2>
-    <div id="adminBookList" class="grid md:grid-cols-3 gap-6"></div>
+        <div class="md:col-span-2 flex gap-2">
+          <button id="save-book" class="bg-sky-600 text-white px-4 py-2 rounded">Simpan</button>
+          <button id="clear" type="button" class="px-4 py-2 border rounded">Bersihkan</button>
+        </div>
+      </form>
 
+      <h3 class="mt-6 font-semibold">Daftar Buku</h3>
+      <div id="book-list" class="mt-3 space-y-3"></div>
+    </section>
   </div>
 
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <script src="../assets/js/firebase-config.js"></script>
+  <script src="../assets/js/utils.js"></script>
+  <script src="../assets/js/auth.js"></script>
+  <script src="../assets/js/book_manage.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      Auth.requireAdmin();
+      Auth.signOutButton('signout');
+      BookManage.init();
+    });
+  </script>
 </body>
 </html>

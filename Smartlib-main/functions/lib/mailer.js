@@ -1,24 +1,55 @@
-const sgMail = require("@sendgrid/mail");
-
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-
 /**
- * Kirim email menggunakan SendGrid
+ * mailer.js
+ * Wrapper around SendGrid (preferred) with fallback to console logging.
+ * Configured via functions.config().sendgrid.key and functions.config().sendgrid.from
+ *
+ * Usage:
+ * const { sendMail } = require('./lib/mailer');
+ * await sendMail('to@example.com', 'Subject', '<p>HTML</p>');
  */
-async function sendEmail(to, subject, html) {
-  const msg = {
-    to,
-    from: process.env.SENDER_EMAIL, // HARUS diverifikasi SendGrid
-    subject,
-    html
-  };
 
-  try {
-    await sgMail.send(msg);
-    console.log("Email berhasil dikirim ke", to);
-  } catch (err) {
-    console.error("Gagal mengirim email:", err);
+const functions = require('firebase-functions');
+
+let provider = null;
+
+try {
+  const sendgridKey = functions.config().sendgrid && functions.config().sendgrid.key;
+  const sendgridFrom = functions.config().sendgrid && functions.config().sendgrid.from;
+  if (sendgridKey && sendgridFrom) {
+    const sgMail = require('@sendgrid/mail');
+    sgMail.setApiKey(sendgridKey);
+    provider = {
+      send: async (to, subject, html) => {
+        const msg = {
+          to,
+          from: sendgridFrom,
+          subject,
+          html
+        };
+        return sgMail.send(msg);
+      }
+    };
+  } else {
+    // Fallback: just log to console (useful in emulator or if not configured)
+    provider = {
+      send: async (to, subject, html) => {
+        console.log('[mail fallback] to:', to, 'subject:', subject, 'html:', html);
+        return Promise.resolve();
+      }
+    };
   }
+} catch (err) {
+  console.error('Mailer init error', err);
+  provider = {
+    send: async (to, subject, html) => {
+      console.log('[mail fallback-exception] to:', to, 'subject:', subject);
+      return Promise.resolve();
+    }
+  };
 }
 
-module.exports = { sendEmail };
+async function sendMail(to, subject, html) {
+  return provider.send(to, subject, html);
+}
+
+module.exports = { sendMail };

@@ -1,5 +1,5 @@
 {
   "projects": {
-    "default": "PERPUS_SMKN3MANADO_FIREBASE_PROJECT_ID"
+    "default": "your-firebase-project-id"
   }
 }

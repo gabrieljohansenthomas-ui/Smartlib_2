@@ -1,30 +1,58 @@
-<!DOCTYPE html>
+<!--
+dashboard.html
+Landing after login: role-based redirect / dashboard menu.
+Admin users should be redirected to admin area or see admin links.
+Place at perpus-smkn3manado-frontend/dashboard.html
+-->
+
+<!doctype html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard – Perpustakaan SMKN 3 Manado</title>
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dashboard — Perpus</title>
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <script type="module" src="assets/js/firebase-config.js"></script>
-  <script type="module" src="assets/js/utils.js"></script>
-  <script type="module" src="assets/js/auth.js"></script>
+  <link rel="stylesheet" href="assets/css/style.css" />
 </head>
+<body class="bg-sky-50 min-h-screen">
+  <div class="max-w-6xl mx-auto p-6">
 
-<body class="bg-gray-50">
+    <header class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-semibold text-sky-700">Dashboard</h1>
+      <div>
+        <a id="goto-catalog" href="katalog.html" class="mr-3">Katalog</a>
+        <button id="signout" class="bg-white border px-3 py-1 rounded">Keluar</button>
+      </div>
+    </header>
 
-  <div class="max-w-5xl mx-auto py-10 px-4">
+    <section class="grid md:grid-cols-3 gap-6">
+      <div class="bg-white p-4 rounded shadow">
+        <h3 class="font-semibold">Profil</h3>
+        <div id="profile" class="mt-3 text-sm text-slate-700">Memuat profil…</div>
+      </div>
 
-    <h1 class="text-3xl font-bold text-sky-700 mb-4">
-      Dashboard
-    </h1>
+      <div class="bg-white p-4 rounded shadow">
+        <h3 class="font-semibold">Aksi</h3>
+        <div class="mt-3 space-y-2">
+          <a href="borrow.html" class="block bg-sky-600 text-white px-3 py-2 rounded">Permintaan Peminjaman</a>
+          <a href="history.html" class="block border px-3 py-2 rounded">Riwayat Peminjaman Saya</a>
+        </div>
+      </div>
 
-    <p class="text-gray-700">Memuat informasi akun...</p>
-
-    <div id="roleRedirect" class="mt-4"></div>
+      <div id="admin-panel" class="bg-white p-4 rounded shadow hidden">
+        <h3 class="font-semibold">Panel Admin</h3>
+        <div class="mt-3 space-y-2">
+          <a href="admin/books.html" class="block border px-3 py-2 rounded">Manajemen Buku</a>
+          <a href="admin/members.html" class="block border px-3 py-2 rounded">Manajemen Anggota</a>
+          <a href="admin/stats.html" class="block border px-3 py-2 rounded">Statistik</a>
+          <a href="admin/loans.html" class="block border px-3 py-2 rounded">Peminjaman (Requests)</a>
+        </div>
+      </div>
+    </section>
 
   </div>
 
+  <script src="assets/js/utils.js"></script>
+  <!-- auth.js will fill profile and decide to show admin panel (Auth.setupDashboard()) -->
 </body>
 </html>

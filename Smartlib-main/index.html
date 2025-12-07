@@ -1,66 +1,85 @@
-<!DOCTYPE html>
+<!--
+index.html
+Landing / Quick catalog page for "Sistem Perpustakaan Digital SMK Negeri 3 Manado"
+
+Instructions:
+- Place this file at perpus-smkn3manado-frontend/index.html
+- Tailwind is used via CDN. Firebase config and JS behavior loaded from assets/js/*.js
+- Replace FIREBASE config placeholders in assets/js/firebase-config.js when ready.
+-->
+
+<!doctype html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sistem Perpustakaan Digital – SMK Negeri 3 Manado</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Perpustakaan Digital - SMK Negeri 3 Manado</title>
 
-  <!-- Tailwind CSS CDN -->
+  <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- DOMPurify -->
-  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.3/dist/purify.min.js"></script>
+  <!-- Chart.js (loaded on dashboard/stats when needed) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 
-  <!-- Global Styles -->
+  <!-- DOMPurify for sanitization of user content -->
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
+
   <link rel="stylesheet" href="assets/css/style.css" />
-
-  <!-- Firebase Config -->
-  <script type="module" src="assets/js/firebase-config.js"></script>
-
-  <!-- Utils -->
-  <script type="module" src="assets/js/utils.js"></script>
 </head>
+<body class="bg-sky-50 text-slate-800 min-h-screen">
 
-<body class="bg-gray-50 text-gray-800">
-
-  <!-- Navbar -->
-  <nav class="bg-white shadow-md py-4">
-    <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
-      <h1 class="text-2xl font-bold text-sky-600">
-        Perpustakaan SMKN 3 Manado
-      </h1>
-
-      <div>
-        <a href="login.html"
-           class="px-4 py-2 bg-sky-600 text-white rounded hover:bg-sky-700 transition">
-          Login
-        </a>
-      </div>
+  <!-- Header / Navigation -->
+  <header class="bg-white shadow">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+      <a href="index.html" class="text-xl font-semibold text-sky-600">Perpus SMK 3 Manado</a>
+      <nav class="space-x-4">
+        <a href="katalog.html" class="text-sky-600 hover:underline">Katalog</a>
+        <a href="login.html" class="text-slate-600 hover:underline">Masuk</a>
+      </nav>
     </div>
-  </nav>
+  </header>
 
-  <!-- Hero Section -->
-  <section class="max-w-7xl mx-auto px-4 py-16">
-    <div class="grid md:grid-cols-2 gap-10 items-center">
-      <div>
-        <h2 class="text-4xl font-bold mb-4 text-sky-700">
-          Sistem Perpustakaan Digital
-        </h2>
-        <p class="text-gray-600 mb-6">
-          Jelajahi koleksi buku lengkap SMK Negeri 3 Manado secara online,
-          pinjam buku, lihat riwayat, dan dapatkan notifikasi otomatis.
-        </p>
+  <!-- Main -->
+  <main class="max-w-6xl mx-auto p-6">
+    <section class="text-center mb-8">
+      <h1 class="text-4xl font-bold text-sky-700">Sistem Perpustakaan Digital</h1>
+      <p class="mt-2 text-slate-600">Pinjam buku, beri ulasan, dan pantau riwayat peminjaman.</p>
+    </section>
 
-        <a href="katalog.html"
-           class="px-6 py-3 bg-sky-600 text-white rounded-md hover:bg-sky-700 transition">
-          Lihat Katalog Buku
-        </a>
+    <section class="bg-white p-6 rounded-lg shadow">
+      <form id="home-search-form" class="flex gap-3 items-center">
+        <input id="home-q" type="search" placeholder="Cari judul, pengarang, ISBN..." class="flex-1 p-3 border rounded" />
+        <select id="home-category" class="p-3 border rounded">
+          <option value="">Semua kategori</option>
+        </select>
+        <button class="bg-sky-600 text-white px-4 py-2 rounded">Cari</button>
+      </form>
+
+      <div id="home-results" class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+
+      <div class="mt-4 text-center">
+        <a href="katalog.html" class="inline-block bg-white border px-4 py-2 rounded">Lihat Katalog Lengkap</a>
       </div>
+    </section>
+  </main>
 
-      <img src="https://cdn.pixabay.com/photo/2017/08/10/03/47/book-2619526_1280.jpg"
-           alt="Books" class="rounded-lg shadow-lg" />
-    </div>
-  </section>
+  <!-- Footer -->
+  <footer class="mt-8 text-center text-sm text-slate-500 pb-6">
+    &copy; SMK Negeri 3 Manado — Sistem Perpustakaan Digital
+  </footer>
 
+  <!-- App scripts -->
+  <script src="assets/js/utils.js"></script>
+  <!-- catalog.js will be included in next parts; this page uses only utilities for now -->
+  <script>
+    // Minimal client-side behavior: populate categories placeholder
+    document.addEventListener('DOMContentLoaded', () => {
+      const cat = document.getElementById('home-category');
+      // Example categories - will be overwritten by real catalog.js at integration
+      ['Teknologi','Sains','Sastra','Referensi'].forEach(c => {
+        const opt = document.createElement('option'); opt.value = c; opt.textContent = c; cat.appendChild(opt);
+      });
+    });
+  </script>
 </body>
 </html>

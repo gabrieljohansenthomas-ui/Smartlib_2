@@ -1,0 +1,50 @@
+i  The Firebase CLI’s MCP server feature can optionally make use of Gemini in Firebase. Learn more about Gemini in Firebase and how it uses your data: https://firebase.google.com/docs/gemini-in-firebase#how-gemini-in-firebase-uses-your-data
+[34m?[39m [1mEnable Gemini in Firebase features?[22m [2m(Y/n)[22m[45G[46G[2K[G[34m?[39m [1mEnable Gemini in Firebase features?[22m [2m(Y/n)[22m y[46G[45G[2K[G[32m✔[39m [1mEnable Gemini in Firebase features?[22m [36mYes[39m[42G
+[?25h
+i  Firebase optionally collects CLI and Emulator Suite usage and error reporting information to help improve our products. Data is collected in accordance with Google's privacy policy (https://policies.google.com/privacy) and is not used to identify you.
+[34m?[39m [1mAllow Firebase to collect CLI and Emulator Suite usage and error reporting [22m
+[1minformation?[22m [2m(Y/n)[22m[1A[97G[98G[1B[2K[1A[2K[G[34m?[39m [1mAllow Firebase to collect CLI and Emulator Suite usage and error reporting [22m
+[1minformation?[22m [2m(Y/n)[22m y[1A[98G[97G[1B[2K[1A[2K[G[32m✔[39m [1mAllow Firebase to collect CLI and Emulator Suite usage and error reporting [22m
+[1minformation?[22m [36mYes[39m[1A[94G[1B
+[?25h
+i  To change your preferences at any time, run `firebase logout` and `firebase login` again.
+
+To sign in to the Firebase CLI:
+
+1. Take note of your session ID:
+
+   94616
+
+2. Visit the URL below on any device and follow the instructions to get your code:
+
+   https://auth.firebase.tools/login?code_challenge=_dyqEJR53NTjhSEhALq-C40KR9-4K1WZfSevbPZAosM&session=94616d9a-8dec-490d-a5b7-619d04eaf516&attest=QU5jGWTUBVO8ejxx0CYC3l4Q-7irILz89wl9nymS7L4
+
+3. Paste or enter the authorization code below once you have it:
+
+[34m?[39m [1mEnter authorization code:[22m[29G[30G[2K[G[34m?[39m [1mEnter authorization code:[22m 4[30G[31G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/[31G[32G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0[32G[33G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0A[33G[34G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0AT[34G[35G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX[35G[36G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX8[36G[37G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87[37G[38G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87l[38G[39G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lO[39G[40G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOY[40G[41G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYb[41G[42G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq[42G[43G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq6[43G[44G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65[44G[45G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65o[45G[46G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oM[46G[47G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oMz[47G[48G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oMzf[48G[49G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oMzfw[49G[50G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oMzfwU[50G[51G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oMzfwUh[51G[52G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oMzfwUhn[52G[53G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oMzfwUhn7[53G[54G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oMzfwUhn7w[54G[55G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oMzfwUhn7wN[55G[56G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oMzfwUhn7wNE[56G[57G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oMzfwUhn7wNEd[57G[58G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oMzfwUhn7wNEd-[58G[59G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oMzfwUhn7wNEd-6[59G[60G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oMzfwUhn7wNEd-6n[60G[61G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR[61G[62G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-[62G[63G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-o[63G[64G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-ok[64G[65G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-oka[65G[66G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okae[66G[67G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeH[67G[68G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHo[68G[69G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHok[69G[70G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHokN[70G[71G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHokN4[71G[72G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHokN47[72G[73G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHokN47-[73G[74G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHokN47-i[74G[75G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHokN47-il[75G[76G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHokN47-ilV[76G[77G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHokN47-ilVd[77G[78G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHokN47-ilVdm[78G[79G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHokN47-ilVdm3[79G[80G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHokN47-ilVdm3M[80G[81G[2K[G[34m?[39m [1mEnter authorization code:[22m 4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHokN47-ilVdm3Mk
+[1A[81G[82G[1B[2K[1A[2K[G[34m?[39m [1mEnter authorization code:[22m
+4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHokN47-ilVdm3MkS[1A[82G[83G[1B[2K[1A[2K[G[34m?[39m [1mEnter authorization code:[22m
+4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHokN47-ilVdm3MkSD[1A[83G[84G[1B[2K[1A[2K[G[34m?[39m [1mEnter authorization code:[22m
+4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHokN47-ilVdm3MkSDW[1A[84G[85G[1B[2K[1A[2K[G[34m?[39m [1mEnter authorization code:[22m
+4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHokN47-ilVdm3MkSDWf[1A[85G[86G[1B[2K[1A[2K[G[34m?[39m [1mEnter authorization code:[22m
+4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHokN47-ilVdm3MkSDWfo[1A[86G[87G[1B[2K[1A[2K[G[34m?[39m [1mEnter authorization code:[22m
+4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHokN47-ilVdm3MkSDWfoy[1A[87G[88G[1B[2K[1A[2K[G[34m?[39m [1mEnter authorization code:[22m
+4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHokN47-ilVdm3MkSDWfoy4[1A[88G[89G[1B[2K[1A[2K[G[34m?[39m [1mEnter authorization code:[22m
+4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHokN47-ilVdm3MkSDWfoy44[1A[89G[90G[1B[2K[1A[2K[G[34m?[39m [1mEnter authorization code:[22m
+4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHokN47-ilVdm3MkSDWfoy44n[1A[90G[91G[1B[2K[1A[2K[G[34m?[39m [1mEnter authorization code:[22m
+4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHokN47-ilVdm3MkSDWfoy44nL[1A[91G[92G[1B[2K[1A[2K[G[34m?[39m [1mEnter authorization code:[22m
+4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHokN47-ilVdm3MkSDWfoy44nLL[1A[92G[93G[1B[2K[1A[2K[G[34m?[39m [1mEnter authorization code:[22m
+4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHokN47-ilVdm3MkSDWfoy44nLLv[1A[93G[94G[1B[2K[1A[2K[G[34m?[39m [1mEnter authorization code:[22m
+4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHokN47-ilVdm3MkSDWfoy44nLLvo[1A[94G[95G[1B[2K[1A[2K[G[34m?[39m [1mEnter authorization code:[22m
+4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHokN47-ilVdm3MkSDWfoy44nLLvox[1A[95G[96G[1B[2K[1A[2K[G[34m?[39m [1mEnter authorization code:[22m
+4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHokN47-ilVdm3MkSDWfoy44nLLvoxs[1A[96G[97G[1B[2K[1A[2K[G[34m?[39m [1mEnter authorization code:[22m
+4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHokN47-ilVdm3MkSDWfoy44nLLvoxsQ[1A[97G[98G[1B[2K[1A[2K[G[34m?[39m [1mEnter authorization code:[22m
+4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHokN47-ilVdm3MkSDWfoy44nLLvoxsQa[1A[98G[99G[1B[2K[1A[2K[G[34m?[39m [1mEnter authorization code:[22m
+4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHokN47-ilVdm3MkSDWfoy44nLLvoxsQaZ[1A[99G[100G[1B[2K[1A[2K[G[34m?[39m [1mEnter authorization code:[22m
+4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHokN47-ilVdm3MkSDWfoy44nLLvoxsQaZl[1A[100G[101G[1B[2K[1A[2K[G[34m?[39m [1mEnter authorization code:[22m
+4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHokN47-ilVdm3MkSDWfoy44nLLvoxsQaZl9[1A[101G[102G[1B[2K[1A[2K[G[34m?[39m [1mEnter authorization code:[22m
+4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHokN47-ilVdm3MkSDWfoy44nLLvoxsQaZl9Q[1A[102G[29G[1B[2K[1A[2K[G[34m?[39m [1mEnter authorization code:[22m
+4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHokN47-ilVdm3MkSDWfoy44nLLvoxsQaZl9Q[1A[102G[1B[2K[1A[2K[G[32m✔[39m [1mEnter authorization code:[22m
+[36m4/0ATX87lOYbq65oMzfwUhn7wNEd-6nR-okaeHokN47-ilVdm3MkSDWfoy44nLLvoxsQaZl9Q[39m[1A[102G[1B
+[?25h
+✔  Success! Logged in as gabrieljohansenthomas@gmail.com
