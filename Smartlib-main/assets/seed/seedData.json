@@ -1,88 +1,163 @@
 {
   "users": [
     {
-      "uid": "admin-uid-placeholder",  // Ganti dengan UID asli dari Firebase Auth
-      "displayName": "Admin SMK 3 Manado",
-      "email": "admin@smkn3manado.edu",
-      "role": "admin",  // Role admin
+      "uid": "admin1",
+      "displayName": "Admin Perpustakaan",
+      "email": "admin@smkn3manado.sch.id",
+      "role": "admin",
       "active": true,
-      "joinedAt": "2023-01-01T00:00:00Z"
+      "joinedAt": "2024-01-01T00:00:00Z"
     },
     {
-      "uid": "member1-uid-placeholder",  // Ganti dengan UID asli
-      "displayName": "Siswa 1",
-      "email": "siswa1@smkn3manado.edu",
-      "role": "member",  // Role member biasa
+      "uid": "member1",
+      "displayName": "Siswa Member 1",
+      "email": "siswa1@smkn3manado.sch.id",
+      "role": "member",
       "active": true,
-      "joinedAt": "2023-02-01T00:00:00Z"
+      "joinedAt": "2024-01-02T00:00:00Z"
     },
     {
-      "uid": "member2-uid-placeholder",  // Ganti dengan UID asli
-      "displayName": "Siswa 2",
-      "email": "siswa2@smkn3manado.edu",
-      "role": "member",  // Role member biasa
+      "uid": "member2",
+      "displayName": "Siswa Member 2",
+      "email": "siswa2@smkn3manado.sch.id",
+      "role": "member",
       "active": true,
-      "joinedAt": "2023-03-01T00:00:00Z"
+      "joinedAt": "2024-01-03T00:00:00Z"
     }
   ],
+
   "books": [
     {
-      "title": "Pemrograman Web Modern",
-      "author": "John Doe",
-      "isbn": "1234567890123",
-      "category": "Teknologi",
-      "description": "Panduan lengkap pemrograman web.",
-      "coverUrl": "https://example.com/cover1.jpg",
+      "title": "Belajar JavaScript Modern",
+      "author": "Andi Pratama",
+      "isbn": "978-602-1234-11-1",
+      "category": "Pemrograman",
+      "description": "Panduan lengkap JavaScript ES6+ untuk pemula hingga mahir.",
+      "coverUrl": "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f",
       "totalStock": 5,
-      "availableStock": 3,
-      "createdAt": "2023-01-01T00:00:00Z",
-      "updatedAt": "2023-01-01T00:00:00Z",
+      "availableStock": 5,
       "popularityScore": 10
     },
     {
-      "title": "Matematika Dasar",
-      "author": "Jane Smith",
-      "isbn": "9876543210987",
-      "category": "Pendidikan",
-      "description": "Buku matematika untuk siswa SMK.",
-      "coverUrl": "https://example.com/cover2.jpg",
-      "totalStock": 10,
-      "availableStock": 8,
-      "createdAt": "2023-01-02T00:00:00Z",
-      "updatedAt": "2023-01-02T00:00:00Z",
+      "title": "Fundamental Basis Data",
+      "author": "Budi Santoso",
+      "isbn": "978-602-1234-22-2",
+      "category": "Database",
+      "description": "Konsep dasar database relasional dan NoSQL.",
+      "coverUrl": "https://images.unsplash.com/photo-1512820790803-83ca734da794",
+      "totalStock": 4,
+      "availableStock": 3,
+      "popularityScore": 8
+    },
+    {
+      "title": "Pemrograman Mobile Android",
+      "author": "Dewi Lestari",
+      "isbn": "978-602-1234-33-3",
+      "category": "Mobile Development",
+      "description": "Dasar-dasar pemrograman Android dengan Kotlin.",
+      "coverUrl": "https://images.unsplash.com/photo-1522202176988-66273c2fd55f",
+      "totalStock": 6,
+      "availableStock": 6,
+      "popularityScore": 12
+    },
+    {
+      "title": "Jaringan Komputer Dasar",
+      "author": "Rudi Hartono",
+      "isbn": "978-602-1234-44-4",
+      "category": "Jaringan",
+      "description": "Teori dan praktek membangun jaringan komputer modern.",
+      "coverUrl": "https://images.unsplash.com/photo-1498050108023-c5249f4df085",
+      "totalStock": 5,
+      "availableStock": 4,
       "popularityScore": 5
     },
     {
-      "title": "Sejarah Indonesia",
-      "author": "Ahmad Yani",
-      "isbn": "1122334455667",
-      "category": "Sejarah",
-      "description": "Kisah perjuangan bangsa.",
-      "coverUrl": "https://example.com/cover3.jpg",
+      "title": "Algoritma & Struktur Data",
+      "author": "Nadia Utami",
+      "isbn": "978-602-1234-55-5",
+      "category": "Pemrograman",
+      "description": "Belajar algoritma dasar, rekursi, dan struktur data.",
+      "coverUrl": "https://images.unsplash.com/photo-1555066931-4365d14bab8c",
+      "totalStock": 3,
+      "availableStock": 3,
+      "popularityScore": 7
+    },
+    {
+      "title": "Desain UI/UX Modern",
+      "author": "Kevin Santoso",
+      "isbn": "978-602-1234-66-6",
+      "category": "Desain",
+      "description": "Fondasi user interface dan user experience modern.",
+      "coverUrl": "https://images.unsplash.com/photo-1522199755839-a2bacb67c546",
+      "totalStock": 6,
+      "availableStock": 6,
+      "popularityScore": 9
+    },
+    {
+      "title": "Pemrograman Web Full Stack",
+      "author": "Rio Saputra",
+      "isbn": "978-602-1234-77-7",
+      "category": "Pemrograman",
+      "description": "Membangun aplikasi web modern dari frontend hingga backend.",
+      "coverUrl": "https://images.unsplash.com/photo-1518770660439-4636190af475",
       "totalStock": 7,
-      "availableStock": 7,
-      "createdAt": "2023-01-03T00:00:00Z",
-      "updatedAt": "2023-01-03T00:00:00Z",
-      "popularityScore": 0
+      "availableStock": 5,
+      "popularityScore": 11
+    },
+    {
+      "title": "Sistem Operasi Dasar",
+      "author": "Nugroho Saputro",
+      "isbn": "978-602-1234-88-8",
+      "category": "Sistem Operasi",
+      "description": "Konsep dasar Sistem Operasi dan manajemen proses.",
+      "coverUrl": "https://images.unsplash.com/photo-1517430816045-df4b7de1cd0d",
+      "totalStock": 4,
+      "availableStock": 4,
+      "popularityScore": 4
+    },
+    {
+      "title": "Etika Profesi TI",
+      "author": "Lina Wardani",
+      "isbn": "978-602-1234-99-9",
+      "category": "Umum",
+      "description": "Etika profesional dan kode etik dunia informatika.",
+      "coverUrl": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b",
+      "totalStock": 3,
+      "availableStock": 3,
+      "popularityScore": 2
+    },
+    {
+      "title": "Cyber Security Dasar",
+      "author": "Rangga Prayoga",
+      "isbn": "978-602-1234-00-0",
+      "category": "Keamanan",
+      "description": "Pengenalan keamanan siber untuk pemula.",
+      "coverUrl": "https://images.unsplash.com/photo-1510511459019-5dda7724fd87",
+      "totalStock": 5,
+      "availableStock": 4,
+      "popularityScore": 6
     }
   ],
+
   "loans": [
     {
-      "bookId": "book1-id-placeholder",
-      "userId": "member1-uid-placeholder",
-      "requestAt": "2023-05-01T00:00:00Z",
-      "approvedAt": "2023-05-02T00:00:00Z",
-      "dueDate": "2023-05-16T00:00:00Z",
-      "status": "approved"
+      "userId": "member1",
+      "bookId": "1",
+      "requestAt": "2024-02-01T00:00:00Z",
+      "approvedAt": "2024-02-02T00:00:00Z",
+      "dueDate": "2024-02-09T00:00:00Z",
+      "returnedAt": "2024-02-08T00:00:00Z",
+      "status": "returned"
     }
   ],
+
   "reviews": [
     {
-      "bookId": "book1-id-placeholder",
-      "userId": "member1-uid-placeholder",
-      "rating": 4,
-      "text": "Buku bagus untuk belajar!",
-      "createdAt": "2023-05-10T00:00:00Z"
+      "bookId": "1",
+      "userId": "member1",
+      "rating": 5,
+      "text": "Buku ini sangat membantu untuk belajar JavaScript modern!",
+      "createdAt": "2024-02-10T00:00:00Z"
     }
   ]
 }
