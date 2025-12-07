@@ -1,184 +1,30 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Anggota - Perpustakaan Digital SMK Negeri 3 Manado</title>
-    <!-- Tailwind CSS CDN untuk tema biru-putih modern -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="assets/css/style.css">
-    <!-- Chart.js untuk statistik cepat (opsional) -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- DOMPurify untuk sanitasi -->
-    <script src="https://cdn.jsdelivr.net/npm/dompurify@3"></script>
-    <!-- Font Awesome untuk ikon -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Custom CSS untuk animasi modern (subtle) -->
-    <style>
-        .hover-scale:hover { transform: scale(1.02); transition: transform 0.4s ease; }
-        .gradient-bg { background: linear-gradient(135deg, #0ea5e9 0%, #ffffff 100%); }
-        .glow-effect:hover { box-shadow: 0 0 15px rgba(14, 165, 233, 0.3); transition: box-shadow 0.4s ease; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard – Perpustakaan SMKN 3 Manado</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script type="module" src="assets/js/firebase-config.js"></script>
+  <script type="module" src="assets/js/utils.js"></script>
+  <script type="module" src="assets/js/auth.js"></script>
 </head>
-<body class="bg-gray-50 text-gray-900">
-    <!-- Header responsif dengan navigasi member -->
-    <header class="bg-blue-600 text-white shadow-lg sticky top-0 z-50 glow-effect">
-        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-            <h1 class="text-2xl font-bold flex items-center">
-                <i class="fas fa-user-graduate mr-2"></i>Dashboard Anggota
-            </h1>
-            <nav class="space-x-4 hidden md:flex">
-                <a href="dashboard.html" class="hover:text-blue-200 transition duration-300 font-bold">Dashboard</a>
-                <a href="katalog.html" class="hover:text-blue-200 transition duration-300">Katalog</a>
-                <a href="borrow.html" class="hover:text-blue-200 transition duration-300">Riwayat Peminjaman</a>
-                <a href="book_detail.html" class="hover:text-blue-200 transition duration-300">Detail Buku</a>
-                <a href="index.html" class="hover:text-blue-200 transition duration-300">Kembali ke Utama</a>
-                <!-- Link ke Admin Dashboard (akan ditampilkan jika admin) -->
-                <a id="adminLink" href="admin/dashboard.html" class="hidden bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition duration-300 shadow-md hover-scale">Dashboard Admin</a>
-                <button id="logoutBtn" class="bg-white text-blue-600 px-4 py-2 rounded-lg hover:bg-gray-100 transition duration-300 shadow-md">Logout</button>
-            </nav>
-            <!-- Mobile menu toggle -->
-            <button id="mobileMenuBtn" class="md:hidden text-white hover:text-blue-200 transition duration-300">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
-        <!-- Mobile menu -->
-        <div id="mobileMenu" class="hidden md:hidden bg-blue-700 px-4 py-2">
-            <a href="dashboard.html" class="block py-2 hover:text-blue-200 transition duration-300 font-bold">Dashboard</a>
-            <a href="katalog.html" class="block py-2 hover:text-blue-200 transition duration-300">Katalog</a>
-            <a href="borrow.html" class="block py-2 hover:text-blue-200 transition duration-300">Riwayat Peminjaman</a>
-            <a href="book_detail.html" class="block py-2 hover:text-blue-200 transition duration-300">Detail Buku</a>
-            <a href="index.html" class="block py-2 hover:text-blue-200 transition duration-300">Kembali ke Utama</a>
-            <!-- Link ke Admin Dashboard di mobile (akan ditampilkan jika admin) -->
-            <a id="adminLinkMobile" href="admin/dashboard.html" class="hidden block py-2 bg-red-600 text-white px-4 py-2 rounded-lg mt-2 hover:bg-red-700 transition duration-300">Dashboard Admin</a>
-            <button id="logoutBtnMobile" class="block py-2 bg-white text-blue-600 px-4 py-2 rounded-lg mt-2 hover:bg-gray-100 transition duration-300">Logout</button>
-        </div>
-    </header>
 
-    <!-- Main Content: Dashboard Member -->
-    <main class="container mx-auto px-4 py-8">
-        <h2 class="text-4xl font-bold text-center mb-8 text-blue-600">Selamat Datang, Anggota!</h2>
-        <p class="text-center text-lg mb-8 text-gray-700">Jelajahi perpustakaan digital kami. Lihat overview cepat di bawah ini.</p>
-        
-        <!-- Overview Stats Cepat untuk Member -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-lg shadow-md text-center hover:shadow-lg transition duration-400 hover-scale glow-effect">
-                <i class="fas fa-book text-4xl text-blue-600 mb-4"></i>
-                <h3 class="text-2xl font-bold text-blue-600" id="borrowedBooks">0</h3>
-                <p class="text-gray-600">Buku Dipinjam</p>
-            </div>
-            <div class="bg-white p-6 rounded-lg shadow-md text-center hover:shadow-lg transition duration-400 hover-scale glow-effect">
-                <i class="fas fa-history text-4xl text-blue-600 mb-4"></i>
-                <h3 class="text-2xl font-bold text-blue-600" id="totalBorrowed">0</h3>
-                <p class="text-gray-600">Total Dipinjam</p>
-            </div>
-            <div class="bg-white p-6 rounded-lg shadow-md text-center hover:shadow-lg transition duration-400 hover-scale glow-effect">
-                <i class="fas fa-star text-4xl text-blue-600 mb-4"></i>
-                <h3 class="text-2xl font-bold text-blue-600" id="reviewsGiven">0</h3>
-                <p class="text-gray-600">Ulasan Diberikan</p>
-            </div>
-            <div class="bg-white p-6 rounded-lg shadow-md text-center hover:shadow-lg transition duration-400 hover-scale glow-effect">
-                <i class="fas fa-bell text-4xl text-blue-600 mb-4"></i>
-                <h3 class="text-2xl font-bold text-blue-600" id="notifications">0</h3>
-                <p class="text-gray-600">Notifikasi Baru</p>
-            </div>
-        </div>
-        
-        <!-- Link Cepat untuk Member -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <a href="katalog.html" class="bg-blue-600 text-white p-6 rounded-lg shadow-md text-center hover:shadow-lg transition duration-400 hover-scale glow-effect">
-                <i class="fas fa-search text-4xl mb-4"></i>
-                <h4 class="text-xl font-semibold">Jelajahi Katalog</h4>
-                <p>Cari dan pinjam buku favorit Anda.</p>
-            </a>
-            <a href="borrow.html" class="bg-blue-600 text-white p-6 rounded-lg shadow-md text-center hover:shadow-lg transition duration-400 hover-scale glow-effect">
-                <i class="fas fa-handshake text-4xl mb-4"></i>
-                <h4 class="text-xl font-semibold">Riwayat Peminjaman</h4>
-                <p>Lihat status peminjaman dan kembalikan buku.</p>
-            </a>
-            <a href="book_detail.html" class="bg-blue-600 text-white p-6 rounded-lg shadow-md text-center hover:shadow-lg transition duration-400 hover-scale glow-effect">
-                <i class="fas fa-star text-4xl mb-4"></i>
-                <h4 class="text-xl font-semibold">Beri Ulasan</h4>
-                <p>Review buku yang telah Anda pinjam.</p>
-            </a>
-        </div>
-        
-        <!-- Buku Sedang Dipinjam (Cepat) -->
-        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
-            <h4 class="text-2xl font-semibold mb-4 text-blue-600 flex items-center">
-                <i class="fas fa-book-open mr-2"></i>Buku Sedang Dipinjam
-            </h4>
-            <div id="currentLoans" class="space-y-4">
-                <!-- Buku dipinjam akan dimuat dinamis -->
-                <p class="text-gray-600">Memuat buku dipinjam...</p>
-            </div>
-        </div>
-        
-        <!-- Notifikasi Personal -->
-        <div class="bg-white p-6 rounded-lg shadow-md">
-            <h4 class="text-2xl font-semibold mb-4 text-blue-600 flex items-center">
-                <i class="fas fa-bell mr-2"></i>Notifikasi Anda
-            </h4>
-            <div id="personalNotifications" class="space-y-4">
-                <!-- Notifikasi akan dimuat dinamis -->
-                <p class="text-gray-600">Memuat notifikasi...</p>
-            </div>
-        </div>
-    </main>
+<body class="bg-gray-50">
 
-    <!-- Footer -->
-    <footer class="bg-blue-600 text-white text-center py-8 mt-8">
-        <div class="container mx-auto px-4">
-            <p class="mb-4">&copy; 2023 SMK Negeri 3 Manado. Dibuat dengan ❤️ menggunakan Firebase.</p>
-            <div class="flex justify-center space-x-6">
-                <a href="#" class="hover:text-blue-200 transition"><i class="fab fa-facebook"></i></a>
-                <a href="#" class="hover:text-blue-200 transition"><i class="fab fa-twitter"></i></a>
-                <a href="#" class="hover:text-blue-200 transition"><i class="fab fa-instagram"></i></a>
-            </div>
-        </div>
-    </footer>
+  <div class="max-w-5xl mx-auto py-10 px-4">
 
-    <!-- Scripts -->
-    <script type="module" src="assets/js/firebase-config.js"></script>
-    <script type="module" src="assets/js/auth.js"></script>
-    <script type="module" src="assets/js/borrow.js"></script> <!-- Reuse untuk load riwayat -->
-    <script type="module" src="assets/js/utils.js"></script>
-    <!-- Script untuk mobile menu, load data, dan check admin role -->
-    <script>
-        // Mobile menu toggle
-        document.getElementById('mobileMenuBtn').addEventListener('click', () => {
-            document.getElementById('mobileMenu').classList.toggle('hidden');
-        });
-        
-        // Logout
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            if (window.logout) window.logout();
-        });
-        document.getElementById('logoutBtnMobile').addEventListener('click', () => {
-            if (window.logout) window.logout();
-        });
-        
-        // Check if user is admin and show admin link
-        import { auth, db } from './assets/js/firebase-config.js';
-        import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
-        
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                const userDoc = await getDoc(doc(db, 'users', user.uid));
-                if (userDoc.exists() && userDoc.data().role === 'admin') {
-                    document.getElementById('adminLink').classList.remove('hidden');
-                    document.getElementById('adminLinkMobile').classList.remove('hidden');
-                }
-            }
-        });
-        
-        // Load overview stats (integrate with Firestore)
-        // TODO: Add function to fetch borrowedBooks, totalBorrowed, reviewsGiven, notifications from Firestore
-        // Example: Query loans where userId == currentUser.uid and status == 'approved'
-        // For now, placeholder
-        document.getElementById('borrowedBooks').textContent = 'Loading...';
-        // Load current loans and notifications
-        // TODO: Fetch and display current loans and notifications
-    </script>
+    <h1 class="text-3xl font-bold text-sky-700 mb-4">
+      Dashboard
+    </h1>
+
+    <p class="text-gray-700">Memuat informasi akun...</p>
+
+    <div id="roleRedirect" class="mt-4"></div>
+
+  </div>
+
 </body>
 </html>

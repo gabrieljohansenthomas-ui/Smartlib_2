@@ -1,18 +1,30 @@
-// Helper functions untuk sanitasi dan format
+/**
+ * Utils file: sanitization, formatting, helper functions
+ * -------------------------------------------------------
+ * Dipakai global untuk mencegah XSS dan memformat tanggal.
+ */
+
+export function sanitizeHTML(str) {
+  return DOMPurify.sanitize(str);
+}
+
 export function escapeHTML(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
+  const div = document.createElement("div");
+  div.innerText = str;
   return div.innerHTML;
 }
 
-export function formatDate(timestamp) {
-  if (!timestamp) return 'N/A';
-  const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-  return date.toLocaleDateString('id-ID');
+export function formatDate(ts) {
+  if (!ts) return "-";
+  const date = ts.toDate ? ts.toDate() : new Date(ts);
+  return date.toLocaleDateString("id-ID", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric"
+  });
 }
 
-// Sanitasi input dengan DOMPurify (untuk review text)
-import DOMPurify from 'https://cdn.jsdelivr.net/npm/dompurify@3';
-export function sanitizeInput(input) {
-  return DOMPurify.sanitize(input);
+export function getQueryParam(param) {
+  const url = new URL(window.location.href);
+  return url.searchParams.get(param);
 }

@@ -1,30 +1,28 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Riwayat Peminjaman - Perpustakaan SMK Negeri 3 Manado</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="assets/css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Peminjaman Buku</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script type="module" src="assets/js/firebase-config.js"></script>
+  <script type="module" src="assets/js/utils.js"></script>
+  <script type="module" src="assets/js/borrow.js"></script>
 </head>
+
 <body class="bg-gray-50">
-    <header class="bg-blue-600 text-white shadow-lg">
-        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-            <h1 class="text-2xl font-bold">Riwayat Peminjaman</h1>
-        <nav><a href="dashboard.html" class="hover:text-blue-200">Kembali ke Dashboard</a></nav>
-    </header>
-    <main class="container mx-auto px-4 py-8">
-        <h2 class="text-3xl font-semibold mb-6">Riwayat Peminjaman Anda</h2>
-        <div id="loanHistory" class="space-y-4">
-            <!-- Riwayat dimuat dinamis -->
-        </div>
-        <!-- Form untuk request pinjam (jika diperlukan, tapi utama di katalog) -->
-        <div class="mt-8">
-            <p class="text-gray-600">Untuk meminjam buku, kembali ke <a href="katalog.html" class="text-blue-600 hover:underline">Katalog</a> dan klik "Pinjam".</p>
-        </div>
-    </main>
-    <script type="module" src="assets/js/firebase-config.js"></script>
-    <script type="module" src="assets/js/borrow.js"></script>
-    <script type="module" src="assets/js/utils.js"></script>
+
+  <div class="max-w-xl mx-auto py-10 px-4">
+
+    <h1 class="text-3xl font-bold text-sky-700 mb-6">Form Peminjaman</h1>
+
+    <p>Memuat data buku...</p>
+
+    <div id="borrowForm" class="mt-4"></div>
+
+  </div>
+
 </body>
 </html>

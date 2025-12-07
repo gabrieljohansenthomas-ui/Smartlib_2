@@ -1,30 +1,45 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Perpustakaan SMK Negeri 3 Manado</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="assets/css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login – Perpustakaan SMKN 3 Manado</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script type="module" src="assets/js/firebase-config.js"></script>
+  <script type="module" src="assets/js/utils.js"></script>
+  <script type="module" src="assets/js/auth.js"></script>
 </head>
-<body class="bg-gray-50 flex items-center justify-center min-h-screen">
-    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h2 class="text-2xl font-bold mb-6 text-center text-blue-600">Login</h2>
-        <form id="loginForm">
-            <div class="mb-4">
-                <label class="block text-gray-700">Email</label>
-                <input type="email" id="email" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-            <div class="mb-4">
-                <label class="block text-gray-700">Password</label>
-                <input type="password" id="password" required class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-            <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700">Login</button>
-        </form>
-        <p class="mt-4 text-center"><a href="register.html" class="text-blue-600 hover:underline">Belum punya akun? Daftar</a></p>
-        <div id="errorMsg" class="mt-4 text-red-500 text-center"></div>
-    </div>
-    <script type="module" src="assets/js/firebase-config.js"></script>
-    <script type="module" src="assets/js/auth.js"></script>
+
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+
+  <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+
+    <h2 class="text-2xl font-bold text-center text-sky-600 mb-6">
+      Login
+    </h2>
+
+    <!-- Email -->
+    <input id="email" type="email"
+           class="w-full mb-4 px-4 py-2 border rounded"
+           placeholder="Email" />
+
+    <!-- Password -->
+    <input id="password" type="password"
+           class="w-full mb-4 px-4 py-2 border rounded"
+           placeholder="Password" />
+
+    <button id="loginBtn"
+            class="w-full bg-sky-600 hover:bg-sky-700 text-white py-2 rounded">
+      Login
+    </button>
+
+    <p class="text-center mt-4">
+      Belum punya akun?
+      <a href="register.html" class="text-sky-600 font-semibold">Daftar</a>
+    </p>
+  </div>
+
 </body>
 </html>

@@ -1,38 +1,31 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detail Buku - Perpustakaan SMK Negeri 3 Manado</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="assets/css/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/dompurify@3"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Detail Buku</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.3/dist/purify.min.js"></script>
+
+  <script type="module" src="assets/js/firebase-config.js"></script>
+  <script type="module" src="assets/js/utils.js"></script>
+  <script type="module" src="assets/js/reviews.js"></script>
+  <script type="module" src="assets/js/borrow.js"></script>
 </head>
+
 <body class="bg-gray-50">
-    <header class="bg-blue-600 text-white shadow-lg">
-        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-            <h1 class="text-2xl font-bold">Detail Buku</h1>
-            <nav><a href="katalog.html" class="hover:text-blue-200">Kembali ke Katalog</a></nav>
-        </div>
-    </header>
-    <main class="container mx-auto px-4 py-8">
-        <div id="bookDetail" class="bg-white p-6 rounded-lg shadow-lg">
-            <!-- Detail buku dimuat di sini -->
-        </div>
-        <div class="mt-8">
-            <h3 class="text-2xl font-semibold mb-4">Ulasan</h3>
-            <div id="reviewsList"></div>
-            <form id="reviewForm" class="mt-6">
-                <label class="block text-gray-700">Rating (1-5)</label>
-                <input type="number" id="rating" min="1" max="5" required class="p-3 border border-gray-300 rounded-lg">
-                <label class="block text-gray-700 mt-4">Ulasan</label>
-                <textarea id="reviewText" required class="w-full p-3 border border-gray-300 rounded-lg"></textarea>
-                <button type="submit" class="mt-4 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700">Kirim Ulasan</button>
-            </form>
-        </div>
-    </main>
-    <script type="module" src="assets/js/firebase-config.js"></script>
-    <script type="module" src="assets/js/reviews.js"></script>
-    <script type="module" src="assets/js/utils.js"></script>
+
+  <div class="max-w-5xl mx-auto py-10 px-4">
+
+    <a href="katalog.html" class="text-sky-600">&larr; Kembali</a>
+
+    <div id="bookDetail" class="mt-6"></div>
+
+    <h2 class="text-2xl font-bold text-sky-700 mt-10">Ulasan & Rating</h2>
+    <div id="reviewSection" class="mt-4"></div>
+
+  </div>
+
 </body>
 </html>
